@@ -1,0 +1,28 @@
+meta {
+  name: Todo Test
+  type: graphql
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/query
+  body: graphql
+  auth: inherit
+}
+
+body:graphql {
+  mutation createTodo {
+    createTodo(input: { text: "todo", userId: "1" }) {
+      user {
+        id
+      }
+      text
+      done
+    }
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

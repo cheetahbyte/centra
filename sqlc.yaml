@@ -1,0 +1,36 @@
+version: "2"
+sql:
+  - schema: "db/migrations"
+    queries: "db/queries"
+    engine: "postgresql"
+    gen:
+      go:
+        package: db
+        out: "db/generated"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        overrides:
+          - db_type: "timestamptz"
+            go_type:
+              type: "time.Time"
+          - db_type: "timestamptz"
+            nullable: true
+            go_type:
+              type: "*time.Time"
+          - db_type: "uuid"
+            nullable: false
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"
+          - db_type: "uuid"
+            nullable: true
+            go_type:
+              import: "github.com/google/uuid"
+              type: "UUID"
+              pointer: true
+          - db_type: "pg_catalog.int4" # integer
+            go_type: "int32"
+          - db_type: "pg_catalog.int4" # nullable integer
+            nullable: true
+            go_type:
+              type: "*int32"
