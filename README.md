@@ -24,7 +24,7 @@ This guide takes the following structure for granted
 ### Dockerfile
 To get your CMS running, you have to create the following Dockerfile
 ```Dockerfile
-FROM ghcr.io/cheetahbyte/centra:main
+FROM ghcr.io/cheetahbyte/centra:latest
 COPY content/ /content
 ENV CONTENT_ROOT=/content
 ```
