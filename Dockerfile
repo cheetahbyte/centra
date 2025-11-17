@@ -1,4 +1,4 @@
-FROM oven/bun:1 AS builder
+FROM oven/bun:alpine AS builder
 WORKDIR /app
 
 COPY package.json bun.lock ./
@@ -7,7 +7,7 @@ RUN bun install --production
 COPY . .
 
 # Stage 2: Runtime
-FROM oven/bun:1 AS runner
+FROM oven/bun:alpine AS runner
 WORKDIR /app
 
 COPY --from=builder /app /app
