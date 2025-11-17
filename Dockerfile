@@ -12,7 +12,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o centra-server ./src/cmd/centra-server
+RUN go build -o centra-server ./cmd/centra-server
 
 # runtime
 FROM scratch
