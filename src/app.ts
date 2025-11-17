@@ -1,10 +1,16 @@
 import {Hono} from "hono"
 import { cors } from "hono/cors"
+import { logger } from 'hono/logger'
+import { requestId } from 'hono/request-id'
+import { timeout } from 'hono/timeout'
 import {getCollection, getEntry} from "./content-loader"
 
 const app = new Hono()
 
 app.use("/api/*", cors())
+app.use("/api/*", timeout(3000))
+app.use(logger())
+app.use(requestId())
 
 app.get("/health", (c) => c.json({ status: "ok" }));
 
