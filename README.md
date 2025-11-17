@@ -7,4 +7,4 @@ I just want something simple that gets out of my way to serve data for some webs
 I feel like this is it.
 
 # Techstack
-- Bun (Hono)
+- Golang

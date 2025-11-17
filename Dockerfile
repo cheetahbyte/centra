@@ -1,23 +1,28 @@
-FROM oven/bun:alpine AS builder
+# builder
+FROM golang:1.25.4-alpine AS builder
+
 WORKDIR /app
 
-COPY package.json bun.lock ./
-RUN bun install --production
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
+
+COPY go.mod go.sum ./
+RUN go mod download
 
 COPY . .
 
-# Stage 2: Runtime
-FROM oven/bun:alpine AS runner
-WORKDIR /app
+RUN go build -o centra-server ./src/cmd/centra-server
 
-COPY --from=builder /app /app
+# runtime
+FROM scratch
+
+WORKDIR /app
 
 VOLUME ["/content"]
 
-ENV NODE_ENV=production
-ENV PORT=3000
+COPY --from=builder /app/centra-server /app/centra-server
 
-# Expose port
 EXPOSE 3000
 
-CMD ["bun", "run", "src/app.ts"]
+ENTRYPOINT ["/app/centra-server"]
