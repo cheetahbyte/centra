@@ -36,3 +36,23 @@ func UpdateRepo(dir string) error {
 	fmt.Println("git pull ok: ", stdout.String())
 	return nil
 }
+
+func CloneRepo(repoUrl string, dist string) error {
+	privateKey := filepath.Join(config.GetKeysDir(), "id_ed25519")
+
+	cmd := exec.Command("git", "clone", repoUrl, dist)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	env := os.Environ()
+	env = append(env, "GIT_SSH_COMMAND=ssh -i "+privateKey+" -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new")
+	cmd.Env = env
+
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("git clone failed: %v\nstdout: %s\nstderr: %s",
+			err, stdout.String(), stderr.String())
+	}
+
+	return nil
+}
