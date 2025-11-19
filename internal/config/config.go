@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -98,4 +99,10 @@ func GetCorsAllowCredentials() bool {
 	default:
 		return false
 	}
+}
+
+// this generic function returns the raw object
+func GetExperimental(featureName string) string {
+	raw := os.Getenv(fmt.Sprintf("EXPERIMENTAL_%s", strings.ToUpper(featureName)))
+	return raw
 }
