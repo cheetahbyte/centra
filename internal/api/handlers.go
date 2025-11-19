@@ -19,6 +19,12 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
+func writeBinaryJSON(w http.ResponseWriter, status int, v []byte) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write(v)
+}
+
 func handleHealth(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{
 		"status": "ok",
@@ -52,22 +58,9 @@ func handleContent(w http.ResponseWriter, r *http.Request) {
 	} else {
 		slug := parts[1]
 		if config.GetExperimental("caching") {
-			entry, err := content.GetEntry(collection, slug)
-			if err != nil {
-				if err == config.ErrNotFound {
-					writeJSON(w, 404, map[string]any{
-						"error":      "Not found",
-						"collection": collection,
-						"slug":       slug,
-					})
-					return
-				}
-				writeJSON(w, 500, map[string]any{
-					"error": err.Error(),
-				})
-				return
-			}
-			writeJSON(w, 200, entry)
+			bytes := content.GetEntry(collection, slug)
+			writeBinaryJSON(w, 200, bytes)
+			return
 		}
 
 		entry, err := config.GetEntry(collection, slug)
