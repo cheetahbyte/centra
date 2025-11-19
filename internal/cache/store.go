@@ -11,7 +11,9 @@ type ContentStore struct {
 	jsonBytes map[string][]byte
 }
 
-var store = &ContentStore{}
+var store = &ContentStore{
+	jsonBytes: make(map[string][]byte),
+}
 
 func Get(slug string) []byte {
 	store.mu.RLock()
