@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/cheetahbyte/centra/internal/cache"
 	"github.com/cheetahbyte/centra/internal/config"
 	"github.com/cheetahbyte/centra/internal/content"
 	"github.com/cheetahbyte/centra/internal/domain"
@@ -98,15 +99,28 @@ func handleWebHook(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	// TODO: use env var to select the branch which should be used
+
 	if whData.Ref != "refs/heads/main" {
 		w.WriteHeader(http.StatusAccepted)
 		return
 	}
 
-	err := gitadapter.UpdateRepo(config.GetContentRoot())
-	if err != nil {
-		fmt.Println("error updating repo: ", err.Error())
-	}
+	contentRoot := config.GetContentRoot()
+
 	w.WriteHeader(http.StatusAccepted)
+
+	go func(wh domain.WebhookData, root string) {
+		if err := gitadapter.UpdateRepo(root); err != nil {
+			fmt.Println("error updating repo:", err)
+			return
+		}
+
+		cache.InvalidateAll()
+
+		if err := content.LoadAll(root); err != nil {
+			fmt.Println("error loading content:", err)
+			return
+		}
+	}(whData, contentRoot)
+
 }

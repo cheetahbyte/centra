@@ -42,3 +42,10 @@ func Add(slug string, jsonData []byte) error {
 
 	return nil
 }
+
+func InvalidateAll() {
+	store.mu.Lock()
+	store.jsonBytes = nil
+	store.jsonBytes = make(map[string][]byte)
+	store.mu.Unlock()
+}

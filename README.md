@@ -96,3 +96,4 @@ There a few env vars that can be configured
 | `CONTENT_ROOT`  | sets the directory where the server will look for content.  | `/content`   |
 | `KEYS_DIR`  | sets the directory where the server will place the ssh keys  | `/keys`   |
 | `GITHUB_REPO_URL`  | sets the github repo which from which the content is served  | NONE   |
+| `EXPERIMENTAL_CACHING`  | enables the new caching method. all files are cached on start and served from memory. | false   |
