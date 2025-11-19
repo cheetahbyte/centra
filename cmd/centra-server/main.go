@@ -27,6 +27,8 @@ func main() {
 		log.Fatal("Startup failed: ", err)
 	}
 
+	helper.PrettyKey(pubKey)
+
 	repo := config.GetGitRepo()
 	if repo != "" {
 		url := helper.MakeSSHRepo(repo)
@@ -35,8 +37,6 @@ func main() {
 			log.Fatal("Clone Repo failed: ", err)
 		}
 	}
-
-	helper.PrettyKey(pubKey)
 
 	err = http.ListenAndServe(":"+port, r)
 	if err != nil {
