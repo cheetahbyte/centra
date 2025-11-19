@@ -5,7 +5,7 @@ import (
 	"github.com/go-chi/cors"
 )
 
-func NewCORSConfig() *cors.Options {
+func NewCORSConfig() cors.Options {
 	allowedOrigins := config.GetCorsAllowedOrigins()
 	allowedMethods := config.GetCorsAllowedMethods()
 	allowedHeaders := config.GetCorsAllowedHeaders()
@@ -13,7 +13,7 @@ func NewCORSConfig() *cors.Options {
 	exposedHeaders := config.GetCorsExposedHeaders()
 	maxAge := config.GetCorsMaxAge()
 
-	return &cors.Options{
+	return cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   allowedMethods,
 		AllowedHeaders:   allowedHeaders,

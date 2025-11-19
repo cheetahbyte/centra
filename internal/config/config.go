@@ -65,7 +65,7 @@ func GetCorsAllowedHeaders() []string {
 			panic(err)
 		}
 	}
-	return []string{"Content-Type", "Accept", "Origin", "Authorization", "X-Github-Event"}
+	return []string{"*"}
 }
 
 func GetCorsExposedHeaders() []string {
