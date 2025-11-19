@@ -32,9 +32,8 @@ func MakeSSHRepo(url string) string {
 // this function checks if the git repo exists in the directory, that is set as the CONTENT_ROOT
 func EnsureRepo(gitRepoUrl, contentDir string) error {
 	dir := filepath.Join(contentDir, ".git")
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
+	if _, err := os.Stat(dir); !os.IsNotExist(err) {
 		return nil
 	}
-
-	return gitadapter.CloneRepo(gitRepoUrl, contentDir)
+	return gitadapter.CloneRepo(MakeSSHRepo(gitRepoUrl), contentDir)
 }

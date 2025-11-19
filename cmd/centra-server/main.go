@@ -6,7 +6,6 @@ import (
 
 	"github.com/cheetahbyte/centra/internal/api"
 	"github.com/cheetahbyte/centra/internal/config"
-	gitadapter "github.com/cheetahbyte/centra/internal/git-adapter"
 	"github.com/cheetahbyte/centra/internal/helper"
 	"github.com/go-chi/chi/v5"
 )
@@ -31,11 +30,7 @@ func main() {
 
 	repo := config.GetGitRepo()
 	if repo != "" {
-		url := helper.MakeSSHRepo(repo)
-		err := gitadapter.CloneRepo(url, config.GetContentRoot())
-		if err != nil {
-			log.Fatal("Clone Repo failed: ", err)
-		}
+		helper.EnsureRepo(repo, config.GetContentRoot())
 	}
 
 	err = http.ListenAndServe(":"+port, r)
