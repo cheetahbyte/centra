@@ -2,10 +2,10 @@ package helper
 
 import (
 	"github.com/cheetahbyte/centra/internal/config"
-	"github.com/cheetahbyte/centra/internal/domain"
+	"github.com/go-chi/cors"
 )
 
-func NewCORSConfig() *domain.CORSConfig {
+func NewCORSConfig() *cors.Options {
 	allowedOrigins := config.GetCorsAllowedOrigins()
 	allowedMethods := config.GetCorsAllowedMethods()
 	allowedHeaders := config.GetCorsAllowedHeaders()
@@ -13,7 +13,7 @@ func NewCORSConfig() *domain.CORSConfig {
 	exposedHeaders := config.GetCorsExposedHeaders()
 	maxAge := config.GetCorsMaxAge()
 
-	return &domain.CORSConfig{
+	return &cors.Options{
 		AllowedOrigins:   allowedOrigins,
 		AllowedMethods:   allowedMethods,
 		AllowedHeaders:   allowedHeaders,
