@@ -1,6 +1,11 @@
 package config
 
-import "os"
+import (
+	"encoding/json"
+	"os"
+	"strconv"
+	"strings"
+)
 
 func GetGitRepo() string {
 	if root := os.Getenv("GITHUB_REPO_URL"); root != "" {
@@ -28,4 +33,69 @@ func GetContentRoot() string {
 		return root
 	}
 	return "/content"
+}
+
+func GetCorsAllowedOrigins() []string {
+	if raw := os.Getenv("CORS_ALLOWED_ORIGINS"); raw != "" {
+		raw = strings.ReplaceAll(raw, "'", `"`)
+		var items []string
+		if err := json.Unmarshal([]byte(raw), &items); err != nil {
+			panic(err)
+		}
+	}
+	return []string{"*"}
+}
+
+func GetCorsAllowedMethods() []string {
+	if raw := os.Getenv("CORS_ALLOWED_METHODS"); raw != "" {
+		raw = strings.ReplaceAll(raw, "'", `"`)
+		var items []string
+		if err := json.Unmarshal([]byte(raw), &items); err != nil {
+			panic(err)
+		}
+	}
+	return []string{"GET", "HEAD", "OPTIONS"}
+}
+
+func GetCorsAllowedHeaders() []string {
+	if raw := os.Getenv("CORS_ALLOWED_HEADERS"); raw != "" {
+		raw = strings.ReplaceAll(raw, "'", `"`)
+		var items []string
+		if err := json.Unmarshal([]byte(raw), &items); err != nil {
+			panic(err)
+		}
+	}
+	return []string{"*"}
+}
+
+func GetCorsExposedHeaders() []string {
+	if raw := os.Getenv("CORS_EXPOSED_HEADERS"); raw != "" {
+		raw = strings.ReplaceAll(raw, "'", `"`)
+		var items []string
+		if err := json.Unmarshal([]byte(raw), &items); err != nil {
+			panic(err)
+		}
+	}
+	return []string{"Cache-Control", "Content-Language", "Content-Length", "Content-Type", "Expires", "Last-Modified"}
+}
+
+func GetCorsMaxAge() int {
+	if raw := os.Getenv("CORS_MAX_AGE"); raw != "" {
+		numb, err := strconv.Atoi(raw)
+		if err != nil {
+			panic(err)
+		}
+		return numb
+	}
+	return 360
+}
+
+func GetCorsAllowCredentials() bool {
+	raw := os.Getenv("CORS_ALLOW_CREDENTIALS")
+	switch raw {
+	case "true":
+		return true
+	default:
+		return false
+	}
 }
