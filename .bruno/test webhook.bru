@@ -1,0 +1,26 @@
+meta {
+  name: test webhook
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/webhook
+  body: json
+  auth: inherit
+}
+
+headers {
+  X-Github-Event: push
+}
+
+body:json {
+  {
+    "ref": "refs/heads/main"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

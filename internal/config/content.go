@@ -13,18 +13,10 @@ var ErrNotFound = errors.New("not found")
 
 type ContentRecord map[string]any
 
-// CONTENT_ROOT or ./content fallback
-func contentRoot() string {
-	if root := os.Getenv("CONTENT_ROOT"); root != "" {
-		return root
-	}
-	return "content"
-}
-
 func GetContentNode(path string) {}
 
 func GetCollection(collection string) ([]ContentRecord, error) {
-	dir := filepath.Join(contentRoot(), collection)
+	dir := filepath.Join(GetContentRoot(), collection)
 
 	files, err := os.ReadDir(dir)
 	if err != nil {
@@ -72,7 +64,7 @@ func GetCollection(collection string) ([]ContentRecord, error) {
 }
 
 func GetEntry(collection, slug string) (ContentRecord, error) {
-	dir := filepath.Join(contentRoot(), collection)
+	dir := filepath.Join(GetContentRoot(), collection)
 
 	possible := []string{
 		filepath.Join(dir, slug+".yaml"),

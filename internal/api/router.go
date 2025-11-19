@@ -23,6 +23,8 @@ func Register(r *chi.Mux) {
 	}))
 
 	r.Get("/health", handleHealth)
+	// TODO all errors should be logged
+	r.Post("/webhook", handleWebHook)
 
 	r.Route("/api", func(api chi.Router) {
 		api.Get("/*", handleContent)
