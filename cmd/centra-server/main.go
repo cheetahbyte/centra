@@ -17,11 +17,6 @@ func main() {
 	api.Register(r)
 
 	port := config.GetPort()
-	if config.GetExperimental("caching") {
-		if err := content.LoadAll(config.GetContentRoot()); err != nil {
-			panic(err)
-		}
-	}
 
 	log.Printf("Centra API running on :%s\n", port)
 
@@ -37,6 +32,12 @@ func main() {
 	repo := config.GetGitRepo()
 	if repo != "" {
 		helper.EnsureRepo(repo, config.GetContentRoot())
+	}
+
+	if config.GetExperimental("caching") {
+		if err := content.LoadAll(config.GetContentRoot()); err != nil {
+			panic(err)
+		}
 	}
 
 	err = http.ListenAndServe(":"+port, r)
