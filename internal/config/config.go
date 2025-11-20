@@ -146,6 +146,11 @@ func GetLogStructured() bool {
 	}
 }
 
+func GetAPIKey() string {
+	raw := os.Getenv("CENTRA_API_KEY")
+	return raw
+}
+
 // this generic function returns the raw object
 func GetExperimental(featureName string) bool {
 	raw := os.Getenv(fmt.Sprintf("EXPERIMENTAL_%s", strings.ToUpper(featureName)))
