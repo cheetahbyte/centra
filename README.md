@@ -103,4 +103,5 @@ There a few env vars that can be configured
 | `CORS_EXPOSED_HEADERS` | list of headers exposed to the browser | `["Cache-Control","Content-Language","Content-Length","Content-Type","Expires","Last-Modified"]` |
 | `CORS_ALLOW_CREDENTIALS` | whether credentials (cookies/auth headers) are allowed | `false` |
 | `CORS_MAX_AGE` | max age of preflight cache (in seconds) | `360` |
-
+| `SSH_PRIVATE_KEY` | ssh private key used for communication with git | NONE |
+| `SSH_PUBLIC_KEY` | ssh public key used for communication with git | NONE |

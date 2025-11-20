@@ -101,6 +101,16 @@ func GetCorsAllowCredentials() bool {
 	}
 }
 
+func GetPrivateSSHKey() string {
+	raw := os.Getenv("SSH_PRIVATE_KEY")
+	return raw
+}
+
+func GetPublicSSHKey() string {
+	raw := os.Getenv("SSH_PUBLIC_KEY")
+	return raw
+}
+
 // this generic function returns the raw object
 func GetExperimental(featureName string) bool {
 	raw := os.Getenv(fmt.Sprintf("EXPERIMENTAL_%s", strings.ToUpper(featureName)))
