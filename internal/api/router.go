@@ -24,6 +24,7 @@ func Register(r *chi.Mux) {
 	r.Post("/webhook", handleWebHook)
 
 	r.Route("/api", func(api chi.Router) {
+		api.Use(centraMiddleware.APIKeyAuth())
 		api.Get("/*", handleContent)
 	})
 }
