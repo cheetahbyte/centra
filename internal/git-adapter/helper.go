@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/cheetahbyte/centra/internal/config"
+	"github.com/cheetahbyte/centra/internal/logger"
 )
 
 func UpdateRepo(dir string) error {
@@ -33,7 +34,8 @@ func UpdateRepo(dir string) error {
 			err, stdout.String(), stderr.String())
 	}
 
-	fmt.Println("git pull ok: ", stdout.String())
+	logger := logger.AcquireLogger()
+	logger.Info().Msg("git pull suceeded")
 	return nil
 }
 

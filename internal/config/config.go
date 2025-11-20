@@ -6,6 +6,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/rs/zerolog"
 )
 
 func GetGitRepo() string {
@@ -109,6 +111,39 @@ func GetPrivateSSHKey() string {
 func GetPublicSSHKey() string {
 	raw := os.Getenv("SSH_PUBLIC_KEY")
 	return raw
+}
+
+func GetLogLevel() zerolog.Level {
+	raw := strings.ToUpper(os.Getenv("LOG_LEVEL"))
+
+	switch raw {
+	case "DEBUG":
+		return zerolog.DebugLevel
+	case "INFO":
+		return zerolog.InfoLevel
+	case "WARN", "WARNING":
+		return zerolog.WarnLevel
+	case "ERROR":
+		return zerolog.ErrorLevel
+	case "FATAL":
+		return zerolog.FatalLevel
+	case "PANIC":
+		return zerolog.PanicLevel
+	case "TRACE":
+		return zerolog.TraceLevel
+	default:
+		return zerolog.InfoLevel
+	}
+}
+
+func GetLogStructured() bool {
+	raw := os.Getenv("LOG_STRUC")
+	switch raw {
+	case "true":
+		return true
+	default:
+		return false
+	}
 }
 
 // this generic function returns the raw object

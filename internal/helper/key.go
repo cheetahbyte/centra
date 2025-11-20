@@ -1,18 +1,16 @@
 package helper
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/cheetahbyte/centra/internal/config"
+	"github.com/cheetahbyte/centra/internal/logger"
 )
 
 func PrettyKey(pubKey string) {
+	logger := logger.AcquireLogger()
 	if config.GetPublicSSHKey() == "" {
-		fmt.Println("------------------------------------------------")
-		fmt.Println("Add this Deploy Key to your GitHub Repo:")
 		b, _ := os.ReadFile(pubKey)
-		fmt.Println(string(b))
-		fmt.Println("------------------------------------------------")
+		logger.Info().Str("public key", string(b)).Msg("Add the deploy key to your github repository.")
 	}
 }

@@ -1,13 +1,13 @@
 package content
 
 import (
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/cheetahbyte/centra/internal/cache"
+	"github.com/cheetahbyte/centra/internal/logger"
 )
 
 // this function iterates over all files and adds them to the store
@@ -52,6 +52,7 @@ func LoadAll(contentDir string) error {
 		return nil
 	})
 
-	fmt.Println("Indexed", count, "files!")
+	logger := logger.AcquireLogger()
+	logger.Info().Int("files", count).Msg("cached files")
 	return err
 }

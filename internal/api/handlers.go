@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -11,6 +10,7 @@ import (
 	"github.com/cheetahbyte/centra/internal/content"
 	"github.com/cheetahbyte/centra/internal/domain"
 	gitadapter "github.com/cheetahbyte/centra/internal/git-adapter"
+	"github.com/cheetahbyte/centra/internal/logger"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -85,6 +85,7 @@ func handleContent(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleWebHook(w http.ResponseWriter, r *http.Request) {
+	log := logger.AcquireLogger()
 	githubEvent := r.Header.Get("X-Github-Event")
 	if githubEvent != "push" {
 		w.WriteHeader(http.StatusAccepted)
@@ -111,14 +112,14 @@ func handleWebHook(w http.ResponseWriter, r *http.Request) {
 
 	go func(wh domain.WebhookData, root string) {
 		if err := gitadapter.UpdateRepo(root); err != nil {
-			fmt.Println("error updating repo:", err)
+			log.Error().Err(err).Msg("error during repo update")
 			return
 		}
 
 		cache.InvalidateAll()
 
 		if err := content.LoadAll(root); err != nil {
-			fmt.Println("error loading content:", err)
+			log.Error().Err(err).Msg("failed to cache during webhook udpate")
 			return
 		}
 	}(whData, contentRoot)

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/cheetahbyte/centra/internal/api"
 	"github.com/cheetahbyte/centra/internal/config"
 	"github.com/cheetahbyte/centra/internal/content"
 	"github.com/cheetahbyte/centra/internal/helper"
+	"github.com/cheetahbyte/centra/internal/logger"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -18,13 +18,13 @@ func main() {
 
 	port := config.GetPort()
 
-	log.Printf("Centra API running on :%s\n", port)
+	logger := logger.AcquireLogger()
 
 	keyDir := config.GetKeysDir()
 
 	pubKey, err := helper.EnsureKeys(keyDir)
 	if err != nil {
-		log.Fatal("Startup failed: ", err)
+		logger.Fatal().Err(err).Msg("problem with ssh keys")
 	}
 
 	helper.PrettyKey(pubKey)
@@ -36,12 +36,14 @@ func main() {
 
 	if config.GetExperimental("caching") {
 		if err := content.LoadAll(config.GetContentRoot()); err != nil {
-			panic(err)
+			logger.Fatal().Err(err).Msg("caching did not work.")
 		}
 	}
 
+	logger.Info().Str("port", port).Msg("centra api is running.")
+
 	err = http.ListenAndServe(":"+port, r)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal().Err(err).Msg("failed to start server.")
 	}
 }

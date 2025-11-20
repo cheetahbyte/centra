@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	gitadapter "github.com/cheetahbyte/centra/internal/git-adapter"
+	"github.com/cheetahbyte/centra/internal/logger"
 )
 
 // this function ensures that the given url is a ssh github url
@@ -20,7 +21,8 @@ func MakeSSHRepo(url string) string {
 		return url
 	}
 
-	fmt.Println("git url is http based. converting.")
+	logger := logger.AcquireLogger()
+	logger.Debug().Str("URL", url).Msg("git url is http based. converting")
 
 	splitUrl := strings.Split(url, "/")
 
