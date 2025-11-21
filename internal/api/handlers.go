@@ -40,48 +40,23 @@ func handleContent(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, "Invalid content path")
 		return
 	}
-	parts := strings.SplitN(path, "/", 2)
-	collection := parts[0]
 
-	if len(parts) == 1 {
-		items, err := config.GetCollection(collection)
-		if err != nil {
-			writeJSON(w, 500, map[string]any{
-				"error": err.Error(),
-			})
-			return
-		}
-
-		writeJSON(w, 200, map[string]any{
-			"collection": collection,
-			"items":      items,
-		})
+	node := cache.GetNode(path)
+	if node.IsLeaf() {
+		writeBinaryJSON(w, 200, node.GetData())
+		return
 	} else {
-		slug := parts[1]
-		if config.GetExperimental("caching") {
-			bytes := content.GetEntry(collection, slug)
-			writeBinaryJSON(w, 200, bytes)
-			return
+		items := node.GetChildren()
+		childrenNames := []string{}
+		for p, _ := range items {
+			childrenNames = append(childrenNames, path+"/"+p)
 		}
-
-		entry, err := config.GetEntry(collection, slug)
-
-		if err != nil {
-			if err == config.ErrNotFound {
-				writeJSON(w, 404, map[string]any{
-					"error":      "Not found",
-					"collection": collection,
-					"slug":       slug,
-				})
-				return
-			}
-			writeJSON(w, 500, map[string]any{
-				"error": err.Error(),
-			})
-			return
-		}
-		writeJSON(w, 200, entry)
+		writeJSON(w, 200, map[string]any{
+			"collection": path,
+			"items":      childrenNames,
+		})
 	}
+
 }
 
 func handleWebHook(w http.ResponseWriter, r *http.Request) {
