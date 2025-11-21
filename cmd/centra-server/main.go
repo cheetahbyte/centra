@@ -34,10 +34,8 @@ func main() {
 		helper.EnsureRepo(repo, config.GetContentRoot())
 	}
 
-	if config.GetExperimental("caching") {
-		if err := content.LoadAll(config.GetContentRoot()); err != nil {
-			logger.Fatal().Err(err).Msg("caching did not work.")
-		}
+	if err := content.LoadAll(config.GetContentRoot()); err != nil {
+		logger.Fatal().Err(err).Msg("caching did not work.")
 	}
 
 	logger.Info().Str("port", port).Msg("centra api is running.")

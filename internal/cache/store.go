@@ -6,20 +6,24 @@ import (
 	"github.com/goccy/go-yaml"
 )
 
-type ContentStore struct {
-	mu        sync.RWMutex
-	jsonBytes map[string][]byte
+var mu sync.RWMutex
+
+func GetNode(path string) *Node {
+	mu.RLock()
+	defer mu.RLock()
+
+	return ROOT_NODE.Lookup(path)
 }
 
-var store = &ContentStore{
-	jsonBytes: make(map[string][]byte),
-}
+func Get(path string) []byte {
+	mu.RLock()
+	defer mu.RUnlock()
 
-func Get(slug string) []byte {
-	store.mu.RLock()
-	data := store.jsonBytes[slug]
-	store.mu.RUnlock()
-	return data
+	node := ROOT_NODE.Lookup(path)
+	if node == nil {
+		return nil
+	}
+	return node.GetData()
 }
 
 func AddAndConv(slug string, yamlData []byte) error {
@@ -28,24 +32,28 @@ func AddAndConv(slug string, yamlData []byte) error {
 		return err
 	}
 
-	if err := Add(slug, jsonData); err != nil {
-		return err
-	}
-
+	Add(slug, jsonData)
 	return nil
 }
 
 func Add(slug string, jsonData []byte) error {
-	store.mu.Lock()
-	store.jsonBytes[slug] = jsonData
-	store.mu.Unlock()
+	mu.Lock()
+	defer mu.Unlock()
 
+	ROOT_NODE.Insert(slug, jsonData)
 	return nil
 }
 
 func InvalidateAll() {
-	store.mu.Lock()
-	store.jsonBytes = nil
-	store.jsonBytes = make(map[string][]byte)
-	store.mu.Unlock()
+	mu.Lock()
+	defer mu.Unlock()
+
+	ROOT_NODE = NewNode("root")
+}
+
+func GetCacheStats() (int, int64) {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	return ROOT_NODE.calculateStats()
 }

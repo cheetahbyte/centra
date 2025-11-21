@@ -10,11 +10,12 @@ import (
 	"github.com/cheetahbyte/centra/internal/logger"
 )
 
-// this function iterates over all files and adds them to the store
 func LoadAll(contentDir string) error {
 	root := filepath.Clean(contentDir)
-
 	count := 0
+
+	logger := logger.AcquireLogger()
+
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -35,8 +36,6 @@ func LoadAll(contentDir string) error {
 		}
 
 		base := strings.TrimSuffix(path, ext)
-
-		// get path relative to content dir: e.g. "pages/home"
 		rel, err := filepath.Rel(root, base)
 		if err != nil {
 			return err
@@ -52,7 +51,8 @@ func LoadAll(contentDir string) error {
 		return nil
 	})
 
-	logger := logger.AcquireLogger()
-	logger.Info().Int("files", count).Msg("cached files")
+	logger.Info().Int("files", count).Msg("cached files into tree")
+	nodes, size := cache.GetCacheStats()
+	logger.Debug().Int("nodes", nodes).Float64("MB", float64(size)/1024/1024).Msg("tree stats")
 	return err
 }
