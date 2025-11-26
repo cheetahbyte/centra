@@ -38,6 +38,9 @@ func (n *Node) GetData() []byte {
 }
 
 func (n *Node) IsLeaf() bool {
+	if (n) == nil {
+		return false
+	}
 	return len(n.children) == 0
 }
 
