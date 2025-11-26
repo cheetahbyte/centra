@@ -151,6 +151,11 @@ func GetAPIKey() string {
 	return raw
 }
 
+func GetWebhookSecret() string {
+	raw := os.Getenv("WEBHOOK_SECRET")
+	return raw
+}
+
 // this generic function returns the raw object
 func GetExperimental(featureName string) bool {
 	raw := os.Getenv(fmt.Sprintf("EXPERIMENTAL_%s", strings.ToUpper(featureName)))
