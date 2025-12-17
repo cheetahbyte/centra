@@ -44,20 +44,27 @@ func handleContent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	node := cache.GetNode(path)
+
+	if node == nil {
+		writeJSON(w, http.StatusNotFound, "Content not found")
+		return
+	}
+
 	if node.IsLeaf() {
 		writeBinaryJSON(w, 200, node.GetData())
 		return
-	} else {
-		items := node.GetChildren()
-		childrenNames := []string{}
-		for p, _ := range items {
-			childrenNames = append(childrenNames, path+"/"+p)
-		}
-		writeJSON(w, 200, map[string]any{
-			"collection": path,
-			"items":      childrenNames,
-		})
 	}
+
+	items := node.GetChildren()
+	childrenNames := make([]string, 0, len(items))
+	for p := range items {
+		childrenNames = append(childrenNames, path+"/"+p)
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"collection": path,
+		"items":      childrenNames,
+	})
 
 }
 
