@@ -45,10 +45,16 @@ func (n *Node) IsLeaf() bool {
 }
 
 func (n *Node) GetChild(name string) *Node {
+	if n == nil {
+		return nil
+	}
 	return n.children[name]
 }
 
 func (n *Node) GetChildren() map[string]*Node {
+	if n == nil {
+		return map[string]*Node{}
+	}
 	return n.children
 }
 

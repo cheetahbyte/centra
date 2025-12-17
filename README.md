@@ -32,3 +32,5 @@ There a few env vars that can be configured
 | `SSH_PUBLIC_KEY` | ssh public key used for communication with git | _none_ |
 | `LOG_LEVEL` | sets the log level | `INFO` |
 | `LOG_STRUC` | turns off pretty printing of the logs and logs in plain json  | `false` |
+| `WEBHOOK_SECRET` | secret used for the webhook secret validation (providing none will disable it) | _none_ |
+| `RATELIMIT_QUOTA` | decides how many requests a client can send during a minute (`time.Minute`) | `100` |

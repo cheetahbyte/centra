@@ -151,6 +151,15 @@ func GetAPIKey() string {
 	return raw
 }
 
+func GetRatelimitQuota() int {
+	raw := os.Getenv("RATELIMIT_QUOTA")
+	num, err := strconv.Atoi(raw)
+	if err != nil {
+		return 100
+	}
+	return num
+}
+
 func GetWebhookSecret() string {
 	raw := os.Getenv("WEBHOOK_SECRET")
 	return raw
