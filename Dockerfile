@@ -27,7 +27,7 @@ RUN go build -ldflags="-w -s" -o centra-server ./cmd/centra-server
 
 
 # --- Runtime Stage -----------------------------------------------------------
-FROM debian:13.2-slim AS runtime
+FROM gcr.io/distroless/static-debian13 AS runtime
 
 WORKDIR /app
 
