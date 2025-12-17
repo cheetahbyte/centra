@@ -3,12 +3,14 @@ package api
 import (
 	"time"
 
+	"github.com/cheetahbyte/centra/internal/config"
 	"github.com/cheetahbyte/centra/internal/helper"
 	"github.com/cheetahbyte/centra/internal/logger"
 	centraMiddleware "github.com/cheetahbyte/centra/internal/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/httprate"
 )
 
 func Register(r *chi.Mux) {
@@ -24,6 +26,8 @@ func Register(r *chi.Mux) {
 	r.Post("/webhook", handleWebHook)
 
 	r.Route("/api", func(api chi.Router) {
+		api.Use(httprate.LimitByIP(config.GetRatelimitQuota(), time.Minute))
+
 		api.Use(centraMiddleware.APIKeyAuth())
 		api.Get("/*", handleContent)
 	})

@@ -88,11 +88,12 @@ func handleWebHook(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	webhookSecret := config.GetWebhookSecret()
-
-	if err := helper.VerifySignature(bodyBytes, signatureHeader, webhookSecret); err != nil {
-		log.Error().Err(err).Msg("invalid webhook signature")
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
+	if webhookSecret != "" {
+		if err := helper.VerifySignature(bodyBytes, signatureHeader, webhookSecret); err != nil {
+			log.Error().Err(err).Msg("invalid webhook signature")
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
 	}
 
 	var whData domain.WebhookData
