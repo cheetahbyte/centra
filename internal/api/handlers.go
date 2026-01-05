@@ -34,6 +34,11 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+type CollectionItem struct {
+	Slug string         `json:"slug"`
+	Meta map[string]any `json:"meta"`
+}
+
 func handleContent(w http.ResponseWriter, r *http.Request) {
 	path := chi.URLParam(r, "*")
 	path = strings.Trim(path, "/")
@@ -56,14 +61,17 @@ func handleContent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	items := node.GetChildren()
-	childrenNames := make([]string, 0, len(items))
+	var collectionItems = make([]CollectionItem, 0, len(items))
 	for p := range items {
-		childrenNames = append(childrenNames, path+"/"+p)
+		collectionItems = append(collectionItems, CollectionItem{
+			Slug: path + "/" + p,
+			Meta: items[p].GetMetadata(),
+		})
 	}
 
 	writeJSON(w, http.StatusOK, map[string]any{
 		"collection": path,
-		"items":      childrenNames,
+		"items":      collectionItems,
 	})
 
 }

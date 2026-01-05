@@ -21,7 +21,7 @@ func NewNode(name string) *Node {
 func (n *Node) calculateStats() (count int, totalSize int64) {
 	if len(n.data) > 0 {
 		count = 1
-		totalSize = int64(len(n.data))
+		totalSize = int64(len(n.data)) + int64(len(n.metadata))
 	}
 
 	for _, child := range n.children {
@@ -31,6 +31,10 @@ func (n *Node) calculateStats() (count int, totalSize int64) {
 	}
 
 	return count, totalSize
+}
+
+func (n *Node) GetMetadata() map[string]any {
+	return n.metadata
 }
 
 func (n *Node) GetData() []byte {
@@ -95,7 +99,7 @@ func (n *Node) Lookup(path string) *Node {
 	return currentNode
 }
 
-func (n *Node) Insert(path string, data []byte) {
+func (n *Node) Insert(path string, metadata map[string]any, data []byte) {
 	elements := strings.Split(path, "/")
 	current := n
 
@@ -112,4 +116,5 @@ func (n *Node) Insert(path string, data []byte) {
 		current = child
 	}
 	current.data = data
+	current.metadata = metadata
 }
