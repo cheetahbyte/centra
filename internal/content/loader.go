@@ -13,16 +13,11 @@ import (
 func LoadAll(contentDir string) error {
 	root := filepath.Clean(contentDir)
 	count := 0
-
 	logger := logger.AcquireLogger()
 
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
+		if err != nil || d.IsDir() {
 			return err
-		}
-
-		if d.IsDir() {
-			return nil
 		}
 
 		ext := strings.ToLower(filepath.Ext(path))
@@ -35,16 +30,12 @@ func LoadAll(contentDir string) error {
 			return err
 		}
 
-		base := strings.TrimSuffix(path, ext)
-		rel, err := filepath.Rel(root, base)
-		if err != nil {
-			return err
-		}
-
+		rel, _ := filepath.Rel(root, strings.TrimSuffix(path, ext))
 		key := filepath.ToSlash(rel)
 
-		if err := cache.AddAndConv(key, b); err != nil {
-			return err
+		if err := cache.AddYAML(key, b); err != nil {
+			logger.Error().Err(err).Str("path", path).Msg("failed to cache file")
+			return nil
 		}
 
 		count++

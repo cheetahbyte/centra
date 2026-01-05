@@ -1,6 +1,10 @@
 package cache
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"maps"
 	"sync"
 
 	"github.com/goccy/go-yaml"
@@ -26,21 +30,43 @@ func Get(path string) []byte {
 	return node.GetData()
 }
 
-func AddAndConv(slug string, yamlData []byte) error {
-	jsonData, err := yaml.YAMLToJSON(yamlData)
+func AddYAML(slug string, raw []byte) error {
+	metadata := make(map[string]any)
+	bodyMap := make(map[string]any)
+	fullData := make(map[string]any)
+
+	parts := bytes.SplitN(raw, []byte("---\n"), 2)
+
+	switch len(parts) {
+	case 2:
+		if err := yaml.Unmarshal(bytes.TrimSpace(parts[0]), &metadata); err != nil {
+			return err
+		}
+		if err := yaml.Unmarshal(bytes.TrimSpace(parts[1]), &bodyMap); err != nil {
+			return err
+		}
+
+		maps.Copy(fullData, metadata)
+		maps.Copy(fullData, bodyMap)
+
+	case 1:
+		if err := yaml.Unmarshal(bytes.TrimSpace(parts[0]), &bodyMap); err != nil {
+			return err
+		}
+		maps.Copy(fullData, bodyMap)
+
+	default:
+		return fmt.Errorf("invalid yaml format")
+	}
+
+	jsonData, err := json.Marshal(fullData)
 	if err != nil {
 		return err
 	}
 
-	Add(slug, jsonData)
-	return nil
-}
-
-func Add(slug string, jsonData []byte) error {
 	mu.Lock()
 	defer mu.Unlock()
-
-	ROOT_NODE.Insert(slug, jsonData)
+	ROOT_NODE.Insert(slug, metadata, jsonData)
 	return nil
 }
 
