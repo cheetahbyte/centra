@@ -14,6 +14,7 @@ require (
 )
 
 require (
+	github.com/caarlos0/env/v10 v10.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect

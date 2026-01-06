@@ -1,41 +1,31 @@
 package helper
 
 import (
-	"fmt"
-	"log"
-	"os"
 	"path/filepath"
-	"strings"
 
-	gitadapter "github.com/cheetahbyte/centra/internal/git-adapter"
+	"github.com/cheetahbyte/centra/internal/config"
 	"github.com/cheetahbyte/centra/internal/logger"
+	"github.com/cheetahbyte/drift/git"
+	"github.com/cheetahbyte/drift/keys"
 )
 
-// this function ensures that the given url is a ssh github url
-func MakeSSHRepo(url string) string {
-	sshBaseUrl := "git@github.com"
-	if !strings.HasPrefix(url, "http") {
-		if !strings.HasPrefix(url, "ssh") {
-			log.Panic("dont know handle this url")
-		}
-		return url
+func SetupGit() *git.Client {
+	log := logger.AcquireLogger()
+	keysDir := config.GetKeysDir()
+
+	pubKeyPath, err := keys.Setup(
+		keysDir,
+		config.GetPrivateSSHKey(),
+		config.GetPublicSSHKey(),
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to setup ssh keys")
 	}
 
-	logger := logger.AcquireLogger()
-	logger.Debug().Str("URL", url).Msg("git url is http based. converting")
-
-	splitUrl := strings.Split(url, "/")
-
-	newUrl := fmt.Sprintf("%s:%s", sshBaseUrl, strings.Join(splitUrl[len(splitUrl)-2:], "/"))
-
-	return newUrl
-}
-
-// this function checks if the git repo exists in the directory, that is set as the CONTENT_ROOT
-func EnsureRepo(gitRepoUrl, contentDir string) error {
-	dir := filepath.Join(contentDir, ".git")
-	if _, err := os.Stat(dir); !os.IsNotExist(err) {
-		return nil
+	if config.GetPublicSSHKey() == "" {
+		log.Info().Str("path", pubKeyPath).Msg("SSH public key ready")
 	}
-	return gitadapter.CloneRepo(MakeSSHRepo(gitRepoUrl), contentDir)
+
+	privateKeyPath := filepath.Join(keysDir, "id_ed25519")
+	return git.New(privateKeyPath)
 }

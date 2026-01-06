@@ -4,37 +4,14 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"path/filepath"
 
 	"github.com/cheetahbyte/centra/internal/cache"
 	"github.com/cheetahbyte/centra/internal/config"
 	"github.com/cheetahbyte/centra/internal/content"
+	"github.com/cheetahbyte/centra/internal/helper"
 	"github.com/cheetahbyte/centra/internal/logger"
-	"github.com/cheetahbyte/drift/git"
-	"github.com/cheetahbyte/drift/keys"
 	"github.com/cheetahbyte/drift/webhook"
 )
-
-func setupGit() *git.Client {
-	log := logger.AcquireLogger()
-	keysDir := config.GetKeysDir()
-
-	pubKeyPath, err := keys.Setup(
-		keysDir,
-		config.GetPrivateSSHKey(),
-		config.GetPublicSSHKey(),
-	)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to setup ssh keys")
-	}
-
-	if config.GetPublicSSHKey() == "" {
-		log.Info().Str("path", pubKeyPath).Msg("SSH public key ready")
-	}
-
-	privateKeyPath := filepath.Join(keysDir, "id_ed25519")
-	return git.New(privateKeyPath)
-}
 
 func HandleWebHook(w http.ResponseWriter, r *http.Request) {
 	log := logger.AcquireLogger()
@@ -82,7 +59,7 @@ func HandleWebHook(w http.ResponseWriter, r *http.Request) {
 	contentRoot := config.GetContentRoot()
 
 	go func(root string) {
-		gitClient := setupGit()
+		gitClient := helper.SetupGit()
 		if gitClient == nil {
 			log.Error().Err(err).Msg("aborting update: failed to setup git client")
 			return
