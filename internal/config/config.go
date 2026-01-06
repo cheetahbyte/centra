@@ -1,187 +1,58 @@
 package config
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"strconv"
-	"strings"
+	"sync"
 
-	"github.com/rs/zerolog"
+	"github.com/caarlos0/env/v10"
 )
 
-func GetGitRepo() string {
-	if root := os.Getenv("GITHUB_REPO_URL"); root != "" {
-		return root
-	}
-	return ""
+type Config struct {
+	// Core
+	Port        string `env:"PORT" envDefault:"3000"`
+	ContentRoot string `env:"CONTENT_ROOT" envDefault:"/content"`
+	APIKey      string `env:"CENTRA_API_KEY"`
+
+	// Git & Keys
+	GitRepo       string `env:"GITHUB_REPO_URL"`
+	KeysDir       string `env:"KEYS_DIR" envDefault:"/keys"`
+	PrivateKey    string `env:"SSH_PRIVATE_KEY"`
+	PublicKey     string `env:"SSH_PUBLIC_KEY"`
+	WebhookSecret string `env:"WEBHOOK_SECRET"`
+
+	// CORS (The library handles slices automatically via comma separation)
+	AllowedOrigins []string `env:"CORS_ALLOWED_ORIGINS" envDefault:"*"`
+	AllowedMethods []string `env:"CORS_ALLOWED_METHODS" envDefault:"GET,HEAD,OPTIONS"`
+	AllowedHeaders []string `env:"CORS_ALLOWED_HEADERS" envDefault:"*"`
+	ExposedHeaders []string `env:"CORS_EXPOSED_HEADERS" envDefault:"Cache-Control,Content-Language,Content-Type,Expires,Last-Modified"`
+	MaxAge         int      `env:"CORS_MAX_AGE" envDefault:"360"`
+	Credentials    bool     `env:"CORS_ALLOW_CREDENTIALS"`
+
+	// Logging & Limits
+	LogLevel      string `env:"LOG_LEVEL" envDefault:"INFO"`
+	LogStructured bool   `env:"LOG_STRUC"`
+	RateQuota     int    `env:"RATELIMIT_QUOTA" envDefault:"100"`
+
+	// Features
+	CacheBinaries bool `env:"CACHE_BINARIES"`
 }
 
-func GetKeysDir() string {
-	if dir := os.Getenv("KEYS_DIR"); dir != "" {
-		return dir
-	}
-	return "/keys"
+var (
+	cfg  Config
+	once sync.Once
+)
+
+// Load reads config once. Call this at app startup.
+func Load() (*Config, error) {
+	var err error
+	once.Do(func() {
+		// This parses environment variables into the struct
+		err = env.Parse(&cfg)
+	})
+	return &cfg, err
 }
 
-func GetPort() string {
-	if port := os.Getenv("PORT"); port != "" {
-		return port
-	}
-	return "3000"
-}
+func Get() Config {
+	_, _ = Load()
 
-func GetContentRoot() string {
-	if root := os.Getenv("CONTENT_ROOT"); root != "" {
-		return root
-	}
-	return "/content"
-}
-
-func GetCorsAllowedOrigins() []string {
-	if raw := os.Getenv("CORS_ALLOWED_ORIGINS"); raw != "" {
-		raw = strings.ReplaceAll(raw, "'", `"`)
-		var items []string
-		if err := json.Unmarshal([]byte(raw), &items); err != nil {
-			panic(err)
-		}
-	}
-	return []string{"*"}
-}
-
-func GetCorsAllowedMethods() []string {
-	if raw := os.Getenv("CORS_ALLOWED_METHODS"); raw != "" {
-		raw = strings.ReplaceAll(raw, "'", `"`)
-		var items []string
-		if err := json.Unmarshal([]byte(raw), &items); err != nil {
-			panic(err)
-		}
-	}
-	return []string{"GET", "HEAD", "OPTIONS"}
-}
-
-func GetCorsAllowedHeaders() []string {
-	if raw := os.Getenv("CORS_ALLOWED_HEADERS"); raw != "" {
-		raw = strings.ReplaceAll(raw, "'", `"`)
-		var items []string
-		if err := json.Unmarshal([]byte(raw), &items); err != nil {
-			panic(err)
-		}
-	}
-	return []string{"*"}
-}
-
-func GetCorsExposedHeaders() []string {
-	if raw := os.Getenv("CORS_EXPOSED_HEADERS"); raw != "" {
-		raw = strings.ReplaceAll(raw, "'", `"`)
-		var items []string
-		if err := json.Unmarshal([]byte(raw), &items); err != nil {
-			panic(err)
-		}
-	}
-	return []string{"Cache-Control", "Content-Language", "Content-Length", "Content-Type", "Expires", "Last-Modified"}
-}
-
-func GetCorsMaxAge() int {
-	if raw := os.Getenv("CORS_MAX_AGE"); raw != "" {
-		numb, err := strconv.Atoi(raw)
-		if err != nil {
-			panic(err)
-		}
-		return numb
-	}
-	return 360
-}
-
-func GetCorsAllowCredentials() bool {
-	raw := os.Getenv("CORS_ALLOW_CREDENTIALS")
-	switch raw {
-	case "true":
-		return true
-	default:
-		return false
-	}
-}
-
-func GetPrivateSSHKey() string {
-	raw := os.Getenv("SSH_PRIVATE_KEY")
-	return raw
-}
-
-func GetPublicSSHKey() string {
-	raw := os.Getenv("SSH_PUBLIC_KEY")
-	return raw
-}
-
-func GetLogLevel() zerolog.Level {
-	raw := strings.ToUpper(os.Getenv("LOG_LEVEL"))
-
-	switch raw {
-	case "DEBUG":
-		return zerolog.DebugLevel
-	case "INFO":
-		return zerolog.InfoLevel
-	case "WARN", "WARNING":
-		return zerolog.WarnLevel
-	case "ERROR":
-		return zerolog.ErrorLevel
-	case "FATAL":
-		return zerolog.FatalLevel
-	case "PANIC":
-		return zerolog.PanicLevel
-	case "TRACE":
-		return zerolog.TraceLevel
-	default:
-		return zerolog.InfoLevel
-	}
-}
-
-func GetLogStructured() bool {
-	raw := os.Getenv("LOG_STRUC")
-	switch raw {
-	case "true":
-		return true
-	default:
-		return false
-	}
-}
-
-func GetAPIKey() string {
-	raw := os.Getenv("CENTRA_API_KEY")
-	return raw
-}
-
-func GetRatelimitQuota() int {
-	raw := os.Getenv("RATELIMIT_QUOTA")
-	num, err := strconv.Atoi(raw)
-	if err != nil {
-		return 100
-	}
-	return num
-}
-
-func GetWebhookSecret() string {
-	raw := os.Getenv("WEBHOOK_SECRET")
-	return raw
-}
-
-func GetCacheBinaries() bool {
-	raw := os.Getenv("CACHE_BINARIES")
-	switch raw {
-	case "true":
-		return true
-	default:
-		return false
-	}
-}
-
-// this generic function returns the raw object
-func GetExperimental(featureName string) bool {
-	raw := os.Getenv(fmt.Sprintf("EXPERIMENTAL_%s", strings.ToUpper(featureName)))
-	switch raw {
-	case "true":
-		return true
-	default:
-		return false
-	}
+	return cfg
 }

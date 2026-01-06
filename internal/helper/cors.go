@@ -6,19 +6,14 @@ import (
 )
 
 func NewCORSConfig() cors.Options {
-	allowedOrigins := config.GetCorsAllowedOrigins()
-	allowedMethods := config.GetCorsAllowedMethods()
-	allowedHeaders := config.GetCorsAllowedHeaders()
-	allowCredentials := config.GetCorsAllowCredentials()
-	exposedHeaders := config.GetCorsExposedHeaders()
-	maxAge := config.GetCorsMaxAge()
+	conf := config.Get()
 
 	return cors.Options{
-		AllowedOrigins:   allowedOrigins,
-		AllowedMethods:   allowedMethods,
-		AllowedHeaders:   allowedHeaders,
-		AllowCredentials: allowCredentials,
-		ExposedHeaders:   exposedHeaders,
-		MaxAge:           maxAge,
+		AllowedOrigins:   conf.AllowedOrigins,
+		AllowedMethods:   conf.AllowedMethods,
+		AllowedHeaders:   conf.AllowedHeaders,
+		AllowCredentials: conf.Credentials,
+		ExposedHeaders:   conf.ExposedHeaders,
+		MaxAge:           conf.MaxAge,
 	}
 }

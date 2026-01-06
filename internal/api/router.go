@@ -15,6 +15,7 @@ import (
 )
 
 func Register(r *chi.Mux) {
+	conf := config.Get()
 	r.Use(middleware.RequestID)
 	r.Use(centraMiddleware.LoggingMiddleware(logger.AcquireLogger()))
 	r.Use(middleware.Recoverer)
@@ -26,7 +27,7 @@ func Register(r *chi.Mux) {
 	r.Post("/webhook", apihandlers.HandleWebHook)
 
 	r.Route("/api", func(api chi.Router) {
-		api.Use(httprate.LimitByIP(config.GetRatelimitQuota(), time.Minute))
+		api.Use(httprate.LimitByIP(conf.RateQuota, time.Minute))
 
 		api.Use(centraMiddleware.APIKeyAuth())
 		api.Get("/*", handleContent)

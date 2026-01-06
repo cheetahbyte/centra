@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/cheetahbyte/centra/internal/api"
@@ -17,27 +18,27 @@ func main() {
 
 	api.Register(r)
 
-	port := config.GetPort()
+	conf, err := config.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	log := logger.AcquireLogger()
 
-	repoURL := config.GetGitRepo()
-
-	if repoURL != "" {
+	if conf.GitRepo != "" {
 		gitClient := helper.SetupGit()
-
-		contentRoot := config.GetContentRoot()
-		if err := gitClient.Prepare(repoURL, contentRoot); err != nil {
+		if err := gitClient.Prepare(conf.GitRepo, conf.ContentRoot); err != nil {
 			log.Fatal().Err(err).Msg("failed to clone or prepare git repository")
 		}
 	}
 
-	if err := content.LoadAll(config.GetContentRoot()); err != nil {
+	if err := content.LoadAll(conf.ContentRoot); err != nil {
 		log.Fatal().Err(err).Msg("caching did not work.")
 	}
 
-	log.Info().Str("port", port).Msg("centra api is running.")
+	log.Info().Str("port", conf.Port).Msg("centra api is running.")
 
-	err := http.ListenAndServe(":"+port, r)
+	err = http.ListenAndServe(":"+conf.Port, r)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to start server.")
 	}

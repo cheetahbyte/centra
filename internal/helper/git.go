@@ -10,22 +10,22 @@ import (
 )
 
 func SetupGit() *git.Client {
+	conf := config.Get()
 	log := logger.AcquireLogger()
-	keysDir := config.GetKeysDir()
 
 	pubKeyPath, err := keys.Setup(
-		keysDir,
-		config.GetPrivateSSHKey(),
-		config.GetPublicSSHKey(),
+		conf.KeysDir,
+		conf.PrivateKey,
+		conf.PublicKey,
 	)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to setup ssh keys")
 	}
 
-	if config.GetPublicSSHKey() == "" {
+	if conf.PublicKey == "" {
 		log.Info().Str("path", pubKeyPath).Msg("SSH public key ready")
 	}
 
-	privateKeyPath := filepath.Join(keysDir, "id_ed25519")
+	privateKeyPath := filepath.Join(conf.KeysDir, "id_ed25519")
 	return git.New(privateKeyPath)
 }

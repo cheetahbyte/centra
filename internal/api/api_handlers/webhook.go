@@ -15,6 +15,7 @@ import (
 
 func HandleWebHook(w http.ResponseWriter, r *http.Request) {
 	log := logger.AcquireLogger()
+	conf := config.Get()
 
 	if r.Header.Get("X-Github-Event") != "push" {
 		w.WriteHeader(http.StatusAccepted)
@@ -29,7 +30,7 @@ func HandleWebHook(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	webhookSecret := config.GetWebhookSecret()
+	webhookSecret := conf.WebhookSecret
 	signatureHeader := r.Header.Get("X-Hub-Signature-256")
 
 	if webhookSecret != "" {
@@ -56,8 +57,6 @@ func HandleWebHook(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusAccepted)
 
-	contentRoot := config.GetContentRoot()
-
 	go func(root string) {
 		gitClient := helper.SetupGit()
 		if gitClient == nil {
@@ -82,5 +81,5 @@ func HandleWebHook(w http.ResponseWriter, r *http.Request) {
 
 		log.Info().Msg("content update complete")
 
-	}(contentRoot)
+	}(conf.ContentRoot)
 }

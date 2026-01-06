@@ -11,10 +11,10 @@ import (
 )
 
 func APIKeyAuth() func(http.Handler) http.Handler {
-	expectedKey := config.GetAPIKey()
+	conf := config.Get()
 	log := logger.AcquireLogger()
 
-	if expectedKey == "" {
+	if conf.APIKey == "" {
 		log.Warn().Msg("no api key configured. api key auth is DISABLED.")
 		return func(next http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +43,7 @@ func APIKeyAuth() func(http.Handler) http.Handler {
 				return
 			}
 
-			if subtle.ConstantTimeCompare([]byte(providedKey), []byte(expectedKey)) != 1 {
+			if subtle.ConstantTimeCompare([]byte(providedKey), []byte(conf.APIKey)) != 1 {
 				http.Error(w, "invalid api key", http.StatusUnauthorized)
 				log.Warn().
 					Str("path", r.URL.Path).

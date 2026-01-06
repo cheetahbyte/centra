@@ -10,16 +10,19 @@ import (
 )
 
 func AcquireLogger() zerolog.Logger {
-	logLevel := config.GetLogLevel()
-	zerolog.SetGlobalLevel(logLevel)
-	structedLogging := config.GetLogStructured()
+	conf := config.Get()
+	level, err := zerolog.ParseLevel(conf.LogLevel)
+	if err != nil {
+		level = zerolog.InfoLevel
+	}
+	zerolog.SetGlobalLevel(level)
 
 	var out io.Writer
 	out = zerolog.ConsoleWriter{
 		Out:        os.Stdout,
 		TimeFormat: time.RFC3339,
 	}
-	if structedLogging {
+	if conf.LogStructured {
 		out = os.Stdout
 	}
 	log := zerolog.New(out).With().Timestamp().Logger()
