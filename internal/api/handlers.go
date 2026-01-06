@@ -49,31 +49,57 @@ func handleContent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	node := cache.GetNode(path)
-
 	if node == nil {
 		writeJSON(w, http.StatusNotFound, "Content not found")
 		return
 	}
 
-	if node.IsLeaf() {
-		writeBinaryJSON(w, 200, node.GetData())
+	if !node.IsLeaf() {
+		items := node.GetChildren()
+		collectionItems := make([]CollectionItem, 0, len(items))
+		for p, child := range items {
+			collectionItems = append(collectionItems, CollectionItem{
+				Slug: path + "/" + p,
+				Meta: child.GetMetadata(),
+			})
+		}
+		writeJSON(w, http.StatusOK, map[string]any{
+			"collection": path,
+			"items":      collectionItems,
+		})
 		return
 	}
 
-	items := node.GetChildren()
-	var collectionItems = make([]CollectionItem, 0, len(items))
-	for p := range items {
-		collectionItems = append(collectionItems, CollectionItem{
-			Slug: path + "/" + p,
-			Meta: items[p].GetMetadata(),
-		})
+	meta := node.GetMetadata()
+	ct, _ := meta["contentType"].(string)
+	if ct == "" {
+		ct = "application/octet-stream"
 	}
 
-	writeJSON(w, http.StatusOK, map[string]any{
-		"collection": path,
-		"items":      collectionItems,
-	})
+	// check if its a binary file
+	if fp := node.GetFilePath(); fp != "" {
+		w.Header().Set("Content-Type", ct)
+		// maybe caching
 
+		if r.Method == http.MethodHead {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		http.ServeFile(w, r, fp)
+		return
+	}
+
+	// serve memory bytes
+	data := node.GetData()
+	if data == nil {
+		writeJSON(w, http.StatusNotFound, "Content not found")
+		return
+	}
+
+	w.Header().Set("Content-Type", ct)
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(data)
 }
 
 func handleWebHook(w http.ResponseWriter, r *http.Request) {

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/cheetahbyte/centra/internal/cache"
+	"github.com/cheetahbyte/centra/internal/handler"
 	"github.com/cheetahbyte/centra/internal/logger"
 )
 
@@ -21,9 +22,7 @@ func LoadAll(contentDir string) error {
 		}
 
 		ext := strings.ToLower(filepath.Ext(path))
-		if ext != ".yaml" && ext != ".yml" {
-			return nil
-		}
+		h := handler.HandleFor(ext)
 
 		b, err := os.ReadFile(path)
 		if err != nil {
@@ -33,7 +32,7 @@ func LoadAll(contentDir string) error {
 		rel, _ := filepath.Rel(root, strings.TrimSuffix(path, ext))
 		key := filepath.ToSlash(rel)
 
-		if err := cache.AddYAML(key, b); err != nil {
+		if err := h(key, path, b); err != nil {
 			logger.Error().Err(err).Str("path", path).Msg("failed to cache file")
 			return nil
 		}

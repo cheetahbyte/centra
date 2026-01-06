@@ -165,6 +165,16 @@ func GetWebhookSecret() string {
 	return raw
 }
 
+func GetCacheBinaries() bool {
+	raw := os.Getenv("CACHE_BINARIES")
+	switch raw {
+	case "true":
+		return true
+	default:
+		return false
+	}
+}
+
 // this generic function returns the raw object
 func GetExperimental(featureName string) bool {
 	raw := os.Getenv(fmt.Sprintf("EXPERIMENTAL_%s", strings.ToUpper(featureName)))

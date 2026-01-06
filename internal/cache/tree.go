@@ -7,9 +7,18 @@ type Node struct {
 	metadata map[string]any
 	data     []byte
 	Path     string
+	typ      string // content-type / node type
+	filePath string // for binary refs
 }
 
 var ROOT_NODE = NewNode("root")
+
+func (n *Node) GetFilePath() string {
+	if n == nil {
+		return ""
+	}
+	return n.filePath
+}
 
 func NewNode(name string) *Node {
 	return &Node{
@@ -21,6 +30,7 @@ func NewNode(name string) *Node {
 func (n *Node) calculateStats() (count int, totalSize int64) {
 	if len(n.data) > 0 {
 		count = 1
+		// NOTE: len(map) is not bytes; you can estimate differently if you want.
 		totalSize = int64(len(n.data)) + int64(len(n.metadata))
 	}
 
@@ -33,16 +43,29 @@ func (n *Node) calculateStats() (count int, totalSize int64) {
 	return count, totalSize
 }
 
+func (n *Node) GetType() string {
+	if n == nil {
+		return ""
+	}
+	return n.typ
+}
+
 func (n *Node) GetMetadata() map[string]any {
+	if n == nil {
+		return nil
+	}
 	return n.metadata
 }
 
 func (n *Node) GetData() []byte {
+	if n == nil {
+		return nil
+	}
 	return n.data
 }
 
 func (n *Node) IsLeaf() bool {
-	if (n) == nil {
+	if n == nil {
 		return false
 	}
 	return len(n.children) == 0
@@ -99,7 +122,7 @@ func (n *Node) Lookup(path string) *Node {
 	return currentNode
 }
 
-func (n *Node) Insert(path string, metadata map[string]any, data []byte) {
+func (n *Node) Insert(path string, metadata map[string]any, data []byte, typ string) {
 	elements := strings.Split(path, "/")
 	current := n
 
@@ -115,6 +138,8 @@ func (n *Node) Insert(path string, metadata map[string]any, data []byte) {
 		}
 		current = child
 	}
+
 	current.data = data
 	current.metadata = metadata
+	current.typ = typ
 }
