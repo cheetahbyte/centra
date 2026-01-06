@@ -22,15 +22,13 @@ func main() {
 
 	keyDir := config.GetKeysDir()
 
-	pubKey, err := helper.EnsureKeys(keyDir)
-	if err != nil {
-		logger.Fatal().Err(err).Msg("problem with ssh keys")
-	}
-
-	helper.PrettyKey(pubKey)
-
 	repo := config.GetGitRepo()
 	if repo != "" {
+		pubKey, err := helper.EnsureKeys(keyDir)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("problem with ssh keys")
+		}
+		helper.PrettyKey(pubKey)
 		helper.EnsureRepo(repo, config.GetContentRoot())
 	}
 
@@ -40,7 +38,7 @@ func main() {
 
 	logger.Info().Str("port", port).Msg("centra api is running.")
 
-	err = http.ListenAndServe(":"+port, r)
+	err := http.ListenAndServe(":"+port, r)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("failed to start server.")
 	}

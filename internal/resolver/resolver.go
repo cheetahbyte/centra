@@ -1,3 +1,0 @@
-package resolver
-
-func _() {}

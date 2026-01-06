@@ -3,6 +3,7 @@ package api
 import (
 	"time"
 
+	apihandlers "github.com/cheetahbyte/centra/internal/api/api_handlers"
 	"github.com/cheetahbyte/centra/internal/config"
 	"github.com/cheetahbyte/centra/internal/helper"
 	"github.com/cheetahbyte/centra/internal/logger"
@@ -22,8 +23,7 @@ func Register(r *chi.Mux) {
 	r.Use(cors.Handler(helper.NewCORSConfig()))
 
 	r.Get("/health", handleHealth)
-	// TODO all errors should be logged
-	r.Post("/webhook", handleWebHook)
+	r.Post("/webhook", apihandlers.HandleWebHook)
 
 	r.Route("/api", func(api chi.Router) {
 		api.Use(httprate.LimitByIP(config.GetRatelimitQuota(), time.Minute))
