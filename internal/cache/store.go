@@ -1,20 +1,15 @@
 package cache
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"maps"
+	"os"
 	"sync"
-
-	"github.com/goccy/go-yaml"
 )
 
 var mu sync.RWMutex
 
 func GetNode(path string) *Node {
 	mu.RLock()
-	defer mu.RLock()
+	defer mu.RUnlock() // FIX: was mu.RLock()
 
 	return ROOT_NODE.Lookup(path)
 }
@@ -30,44 +25,58 @@ func Get(path string) []byte {
 	return node.GetData()
 }
 
-func AddYAML(slug string, raw []byte) error {
-	metadata := make(map[string]any)
-	bodyMap := make(map[string]any)
-	fullData := make(map[string]any)
+// Optional helper if you want metadata too
+func GetWithMetadata(path string) (*Node, []byte, map[string]any) {
+	mu.RLock()
+	defer mu.RUnlock()
 
-	parts := bytes.SplitN(raw, []byte("---\n"), 2)
-
-	switch len(parts) {
-	case 2:
-		if err := yaml.Unmarshal(bytes.TrimSpace(parts[0]), &metadata); err != nil {
-			return err
-		}
-		if err := yaml.Unmarshal(bytes.TrimSpace(parts[1]), &bodyMap); err != nil {
-			return err
-		}
-
-		maps.Copy(fullData, metadata)
-		maps.Copy(fullData, bodyMap)
-
-	case 1:
-		if err := yaml.Unmarshal(bytes.TrimSpace(parts[0]), &bodyMap); err != nil {
-			return err
-		}
-		maps.Copy(fullData, bodyMap)
-
-	default:
-		return fmt.Errorf("invalid yaml format")
+	node := ROOT_NODE.Lookup(path)
+	if node == nil {
+		return nil, nil, nil
 	}
+	return node, node.GetData(), node.GetMetadata()
+}
 
-	jsonData, err := json.Marshal(fullData)
+func AddBinaryRef(slug string, contentType string, absPath string, metadata map[string]any) error {
+	fi, err := os.Stat(absPath)
 	if err != nil {
 		return err
 	}
 
+	if metadata == nil {
+		metadata = map[string]any{}
+	}
+	metadata["kind"] = "binary_ref"
+	metadata["contentType"] = contentType
+	metadata["size"] = fi.Size()
+	metadata["mtime"] = fi.ModTime().Unix()
+
 	mu.Lock()
 	defer mu.Unlock()
-	ROOT_NODE.Insert(slug, metadata, jsonData)
+
+	ROOT_NODE.Insert(slug, metadata, nil, contentType)
+	if n := ROOT_NODE.Lookup(slug); n != nil {
+		n.typ = contentType
+		n.filePath = absPath
+	}
 	return nil
+}
+
+func Insert(slug string, metadata map[string]any, data []byte, typ string) {
+	if metadata == nil {
+		metadata = map[string]any{}
+	}
+
+	metadata["contentType"] = typ
+	metadata["size"] = len(data)
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	ROOT_NODE.Insert(slug, metadata, data, typ)
+	if n := ROOT_NODE.Lookup(slug); n != nil {
+		n.typ = typ
+	}
 }
 
 func InvalidateAll() {
