@@ -8,6 +8,7 @@ import (
 	"github.com/cheetahbyte/centra/internal/content"
 	"github.com/cheetahbyte/centra/internal/helper"
 	"github.com/cheetahbyte/centra/internal/logger"
+
 	"github.com/go-chi/chi/v5"
 )
 
@@ -17,29 +18,27 @@ func main() {
 	api.Register(r)
 
 	port := config.GetPort()
+	log := logger.AcquireLogger()
 
-	logger := logger.AcquireLogger()
+	repoURL := config.GetGitRepo()
 
-	keyDir := config.GetKeysDir()
+	if repoURL != "" {
+		gitClient := helper.SetupGit()
 
-	repo := config.GetGitRepo()
-	if repo != "" {
-		pubKey, err := helper.EnsureKeys(keyDir)
-		if err != nil {
-			logger.Fatal().Err(err).Msg("problem with ssh keys")
+		contentRoot := config.GetContentRoot()
+		if err := gitClient.Prepare(repoURL, contentRoot); err != nil {
+			log.Fatal().Err(err).Msg("failed to clone or prepare git repository")
 		}
-		helper.PrettyKey(pubKey)
-		helper.EnsureRepo(repo, config.GetContentRoot())
 	}
 
 	if err := content.LoadAll(config.GetContentRoot()); err != nil {
-		logger.Fatal().Err(err).Msg("caching did not work.")
+		log.Fatal().Err(err).Msg("caching did not work.")
 	}
 
-	logger.Info().Str("port", port).Msg("centra api is running.")
+	log.Info().Str("port", port).Msg("centra api is running.")
 
 	err := http.ListenAndServe(":"+port, r)
 	if err != nil {
-		logger.Fatal().Err(err).Msg("failed to start server.")
+		log.Fatal().Err(err).Msg("failed to start server.")
 	}
 }
