@@ -17,8 +17,16 @@ func LoadAll(contentDir string) error {
 	logger := logger.AcquireLogger()
 
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
+		if err != nil {
 			return err
+		}
+
+		if d.IsDir() {
+			switch d.Name() {
+			case ".git", "node_modules", ".next", "dist", "build":
+				return fs.SkipDir
+			}
+			return nil
 		}
 
 		ext := strings.ToLower(filepath.Ext(path))
@@ -36,6 +44,7 @@ func LoadAll(contentDir string) error {
 			logger.Error().Err(err).Str("path", path).Msg("failed to cache file")
 			return nil
 		}
+		logger.Debug().Str("path", path).Msg("visited file")
 
 		count++
 		return nil

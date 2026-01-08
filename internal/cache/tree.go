@@ -1,6 +1,8 @@
 package cache
 
-import "strings"
+import (
+	"strings"
+)
 
 type Node struct {
 	children map[string]*Node
@@ -26,12 +28,17 @@ func NewNode(name string) *Node {
 		Path:     name,
 	}
 }
-
 func (n *Node) calculateStats() (count int, totalSize int64) {
-	if len(n.data) > 0 {
-		count = 1
-		// NOTE: len(map) is not bytes; you can estimate differently if you want.
-		totalSize = int64(len(n.data)) + int64(len(n.metadata))
+	if n == nil {
+		return 0, 0
+	}
+
+	count = 1
+
+	totalSize += int64(len(n.data))
+
+	if n.metadata != nil {
+		totalSize += int64(len(n.metadata)) * 8
 	}
 
 	for _, child := range n.children {
