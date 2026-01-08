@@ -3,12 +3,14 @@ package main
 import (
 	"log"
 	"net/http"
+	"path/filepath"
 
 	"github.com/cheetahbyte/centra/internal/api"
 	"github.com/cheetahbyte/centra/internal/config"
 	"github.com/cheetahbyte/centra/internal/content"
 	"github.com/cheetahbyte/centra/internal/helper"
 	"github.com/cheetahbyte/centra/internal/logger"
+	"github.com/cheetahbyte/drift/keys"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -26,10 +28,21 @@ func main() {
 	log := logger.AcquireLogger()
 
 	if conf.GitRepo != "" {
+		if conf.PublicKey != "" {
+			log.Info().Str("ssh key", conf.PublicKey).Msg("add this ssh key to your github repository as deploy key.")
+		} else {
+			publicKeyPath := filepath.Join(conf.KeysDir, "id_ed25519.pub")
+			pubKey, err := keys.GetPublicKey(publicKeyPath)
+			if err != nil {
+				log.Fatal().Err(err).Msg("failed to output public ssh key")
+			}
+			log.Info().Str("ssh key", helper.PublicKeyToString(pubKey)).Msg("add this ssh key to your github repository as deploy key.")
+		}
 		gitClient := helper.SetupGit()
 		if err := gitClient.Prepare(conf.GitRepo, conf.ContentRoot); err != nil {
 			log.Fatal().Err(err).Msg("failed to clone or prepare git repository")
 		}
+
 	}
 
 	if err := content.LoadAll(conf.ContentRoot); err != nil {
