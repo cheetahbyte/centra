@@ -18,6 +18,7 @@ func SetupGit() *git.Client {
 		conf.PrivateKey,
 		conf.PublicKey,
 	)
+
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to setup ssh keys")
 	}
