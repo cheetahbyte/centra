@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/caarlos0/env/v10"
-	"github.com/cheetahbyte/centra/internal/config"
 )
 
 type Config struct {
@@ -83,7 +82,7 @@ func Get() Config {
 
 var BinaryAllowList map[string]bool
 
-func InitBinaryAllowList(conf *config.Config) {
+func InitBinaryAllowList(conf *Config) {
 	BinaryAllowList = make(map[string]bool)
 	for _, ext := range conf.AllowedBinaries {
 		BinaryAllowList[ext] = true
