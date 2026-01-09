@@ -28,7 +28,8 @@ func NewNode(name string) *Node {
 		Path:     name,
 	}
 }
-func (n *Node) calculateStats() (count int, totalSize int64) {
+
+func (n *Node) CalculateStats() (count int, totalSize int64) {
 	if n == nil {
 		return 0, 0
 	}
@@ -42,7 +43,7 @@ func (n *Node) calculateStats() (count int, totalSize int64) {
 	}
 
 	for _, child := range n.children {
-		c, s := child.calculateStats()
+		c, s := child.CalculateStats()
 		count += c
 		totalSize += s
 	}

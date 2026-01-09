@@ -7,12 +7,12 @@ import (
 	"time"
 
 	"github.com/cheetahbyte/centra/internal/config"
-	"github.com/cheetahbyte/centra/internal/logger"
+	"github.com/cheetahbyte/centra/internal/helper"
 )
 
 func APIKeyAuth() func(http.Handler) http.Handler {
 	conf := config.Get()
-	log := logger.AcquireLogger()
+	log := helper.AcquireLogger()
 
 	if conf.APIKey == "" {
 		log.Warn().Msg("no api key configured. api key auth is DISABLED.")

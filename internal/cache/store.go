@@ -90,5 +90,5 @@ func GetCacheStats() (int, int64) {
 	mu.RLock()
 	defer mu.RUnlock()
 
-	return ROOT_NODE.calculateStats()
+	return ROOT_NODE.CalculateStats()
 }

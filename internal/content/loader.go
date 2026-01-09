@@ -7,14 +7,13 @@ import (
 	"strings"
 
 	"github.com/cheetahbyte/centra/internal/cache"
-	"github.com/cheetahbyte/centra/internal/handler"
-	"github.com/cheetahbyte/centra/internal/logger"
+	"github.com/cheetahbyte/centra/internal/helper"
 )
 
 func LoadAll(contentDir string) error {
 	root := filepath.Clean(contentDir)
 	count := 0
-	logger := logger.AcquireLogger()
+	logger := helper.AcquireLogger()
 
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -30,7 +29,7 @@ func LoadAll(contentDir string) error {
 		}
 
 		ext := strings.ToLower(filepath.Ext(path))
-		h := handler.HandleFor(ext)
+		h := HandleFor(ext)
 
 		b, err := os.ReadFile(path)
 		if err != nil {

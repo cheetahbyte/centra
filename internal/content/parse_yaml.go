@@ -1,4 +1,4 @@
-package ingest
+package content
 
 import (
 	"bytes"
@@ -10,7 +10,11 @@ import (
 	"github.com/goccy/go-yaml"
 )
 
-func AddYAML(slug string, raw []byte) error {
+func handleYaml(key string, path string, data []byte) error {
+	return addYaml(key, data)
+}
+
+func addYaml(slug string, raw []byte) error {
 	metadata := make(map[string]any)
 	bodyMap := make(map[string]any)
 	fullData := make(map[string]any)

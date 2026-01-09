@@ -1,4 +1,4 @@
-package apihandlers
+package handlers
 
 import (
 	"encoding/json"
@@ -9,12 +9,11 @@ import (
 	"github.com/cheetahbyte/centra/internal/config"
 	"github.com/cheetahbyte/centra/internal/content"
 	"github.com/cheetahbyte/centra/internal/helper"
-	"github.com/cheetahbyte/centra/internal/logger"
 	"github.com/cheetahbyte/drift/webhook"
 )
 
 func HandleWebHook(w http.ResponseWriter, r *http.Request) {
-	log := logger.AcquireLogger()
+	log := helper.AcquireLogger()
 	conf := config.Get()
 
 	if r.Header.Get("X-Github-Event") != "push" {

@@ -1,4 +1,4 @@
-package ingest
+package content
 
 import (
 	"bytes"
@@ -31,7 +31,11 @@ func splitFrontmatter(raw []byte) (meta []byte, body []byte, hasFM bool, err err
 	return meta, body, true, nil
 }
 
-func AddMarkdown(slug string, raw []byte) error {
+func handleMD(key string, path string, data []byte) error {
+	return addMarkdown(key, data)
+}
+
+func addMarkdown(slug string, raw []byte) error {
 	metadata := make(map[string]any)
 
 	metaBytes, bodyBytes, hasFM, err := splitFrontmatter(raw)
