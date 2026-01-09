@@ -70,7 +70,7 @@ func Load() (*Config, error) {
 		err = env.Parse(&cfg)
 	})
 	cfg.Normalize()
-	InitBinaryAllowList(cfg)
+	InitBinaryAllowList(&cfg)
 	return &cfg, err
 }
 
