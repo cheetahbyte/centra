@@ -1,9 +1,11 @@
 package config
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/caarlos0/env/v10"
+	"github.com/cheetahbyte/centra/internal/config"
 )
 
 type Config struct {
@@ -19,7 +21,7 @@ type Config struct {
 	PublicKey     string `env:"SSH_PUBLIC_KEY"`
 	WebhookSecret string `env:"WEBHOOK_SECRET"`
 
-	// CORS (The library handles slices automatically via comma separation)
+	// CORS
 	AllowedOrigins []string `env:"CORS_ALLOWED_ORIGINS" envDefault:"*"`
 	AllowedMethods []string `env:"CORS_ALLOWED_METHODS" envDefault:"GET,HEAD,OPTIONS"`
 	AllowedHeaders []string `env:"CORS_ALLOWED_HEADERS" envDefault:"*"`
@@ -33,7 +35,27 @@ type Config struct {
 	RateQuota     int    `env:"RATELIMIT_QUOTA" envDefault:"100"`
 
 	// Features
-	CacheBinaries bool `env:"CACHE_BINARIES"`
+	CacheBinaries   bool     `env:"CACHE_BINARIES"`
+	AllowedBinaries []string `env:"ALLOWED_BINARIES" envDefault:"*"`
+	AnyBinaries     bool     `env:"-"`
+}
+
+func (c *Config) Normalize() {
+	// ALLOWED_BINARIES="*"
+	if len(c.AllowedBinaries) == 1 && c.AllowedBinaries[0] == "*" {
+		c.AnyBinaries = true
+		c.AllowedBinaries = nil
+		return
+	}
+
+	// normalize extensions: lowercase, ensure leading dot
+	for i, ext := range c.AllowedBinaries {
+		ext = strings.ToLower(strings.TrimSpace(ext))
+		if ext != "" && !strings.HasPrefix(ext, ".") {
+			ext = "." + ext
+		}
+		c.AllowedBinaries[i] = ext
+	}
 }
 
 var (
@@ -48,6 +70,8 @@ func Load() (*Config, error) {
 		// This parses environment variables into the struct
 		err = env.Parse(&cfg)
 	})
+	cfg.Normalize()
+	InitBinaryAllowList(cfg)
 	return &cfg, err
 }
 
@@ -55,4 +79,13 @@ func Get() Config {
 	_, _ = Load()
 
 	return cfg
+}
+
+var BinaryAllowList map[string]bool
+
+func InitBinaryAllowList(conf *config.Config) {
+	BinaryAllowList = make(map[string]bool)
+	for _, ext := range conf.AllowedBinaries {
+		BinaryAllowList[ext] = true
+	}
 }
