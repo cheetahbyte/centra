@@ -29,11 +29,11 @@ This will return the data we just put into the file as json. Yay!
 {"abc":1}
 ```
 
-Further [reading](https://github.com/cheetahbyte/centra/docs/Setup.md)
+Further [reading](./docs/Setup.md)
 
 # Configuration
 Everything is configured via environment variables.
-You can read all about the configuration [here](https://github.com/cheetahbyte/centra/docs/Configuration.md)
+You can read all about the configuration [here](./docs/Configuration.md)
 
 # Content Model
-If you are interested in how Centra interacts with your content, you can read about it [here](https://github.com/cheetahbyte/centra/docs/ContentModel.md).
+If you are interested in how Centra interacts with your content, you can read about it [here](./docs/ContentModel.md).
