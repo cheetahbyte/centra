@@ -10,27 +10,30 @@ This project is exactly that:
 > A minimal, predictable CMS that does its job without drama.
 
 # Setup
-Read [here](https://github.com/cheetahbyte/centra/wiki/Setup)
+The most basic setup you can do to try out centra locally:
+1. Create a directory `content/` and add a file to it.
+`content/home.yaml`
+```yaml
+abc: 1
+```
+2. Run the docker container and mount the directory to the global content dir
+```
+docker run -v ./content:/content -p 3000:3000 ghcr.io/cheetahbyte/centra:latest
+```
+3. Access the API
+```sh
+ curl http://localhost:3000/api/home
+```
+This will return the data we just put into the file as json. Yay!
+```json
+{"abc":1}
+```
 
-# Environment Variables
-There a few env vars that can be configured
+Further [reading](https://github.com/cheetahbyte/centra/docs/Setup.md)
 
-| Variable | Description | Default |
-|----------|-------------|----------|
-| `PORT` | sets the port on which the webserver starts | `3000` |
-| `CENTRA_API_KEY` | provided a string here will set the key used to protect the content api  | _none_ |
-| `CONTENT_ROOT` | sets the directory where the server will look for content | `/content` |
-| `KEYS_DIR` | sets the directory where the server will place the ssh keys | `/keys` |
-| `GITHUB_REPO_URL` | sets the GitHub repo from which the content is served | _none_ |
-| `CORS_ALLOWED_ORIGINS` | list of allowed origins | `*` |
-| `CORS_ALLOWED_METHODS` | list of allowed methods | `["GET","HEAD","OPTIONS"]` |
-| `CORS_ALLOWED_HEADERS` | list of allowed request headers | `*` |
-| `CORS_EXPOSED_HEADERS` | list of headers exposed to the browser | `["Cache-Control","Content-Language","Content-Length","Content-Type","Expires","Last-Modified"]` |
-| `CORS_ALLOW_CREDENTIALS` | whether credentials (cookies/auth headers) are allowed | `false` |
-| `CORS_MAX_AGE` | max age of preflight cache (in seconds) | `360` |
-| `SSH_PRIVATE_KEY` | ssh private key used for communication with git | _none_ |
-| `SSH_PUBLIC_KEY` | ssh public key used for communication with git | _none_ |
-| `LOG_LEVEL` | sets the log level | `INFO` |
-| `LOG_STRUC` | turns off pretty printing of the logs and logs in plain json  | `false` |
-| `WEBHOOK_SECRET` | secret used for the webhook secret validation (providing none will disable it) | _none_ |
-| `RATELIMIT_QUOTA` | decides how many requests a client can send during a minute (`time.Minute`) | `100` |
+# Configuration
+Everything is configured via environment variables.
+You can read all about the configuration [here](https://github.com/cheetahbyte/centra/docs/Configuration.md)
+
+# Content Model
+If you are interested in how Centra interacts with your content, you can read about it [here](https://github.com/cheetahbyte/centra/docs/ContentModel.md).
