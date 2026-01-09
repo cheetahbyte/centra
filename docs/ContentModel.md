@@ -2,7 +2,7 @@
 
 This document explains how **Centra** processes, categorizes, and serves your content.
 
----
+ 
 
 ## Caching
 
@@ -14,7 +14,6 @@ Binary assets (for example images or other media files) are handled differently.
 
 More advanced caching strategies (such as LRU-based eviction) may be introduced in the future, but the current approach provides a good balance between performance and simplicity.
 
----
 
 ## First-Class Content
 
@@ -29,37 +28,35 @@ This means they can expose structured metadata, which Centra makes available:
 > [!WARNING]
 > Metadata is never stripped from responses. If a file defines metadata, it will always be included when the file is requested.
 
----
-
 ### YAML Files
 
 ```yaml
 author: Leo
 category: baking
----
+ 
 ingredients:
   - name: Sugar
 ```
 
-Everything **above the fence (`---`)** is treated as metadata.
+Everything **above the fence (` `)** is treated as metadata.
 Everything **below** is considered the content body.
 
----
+ 
 
 ### Markdown Files
 
 ```md
----
+ 
 author: Leo
 category: baking
----
+ 
 # Recipe
 Firstly, scramble your eggs.
 ```
 
 For Markdown files, all YAML frontmatter is automatically extracted as metadata and exposed at the collection level.
 
----
+ 
 
 ## Collections
 
@@ -81,29 +78,29 @@ Centra will automatically create two collections:
 * `recipes`
 * `blogs`
 
----
+ 
 
 ### Files in a Collection
 
 **first.md**
 
 ```yaml
----
+ 
 author: leo
 title: This is the first blog post
 state: released
----
+ 
 # This is my stuff.
 ```
 
 **second.md**
 
 ```yaml
----
+ 
 author: maik
 title: My deep-dive into monitors
 state: not-released
----
+ 
 # This is my stuff.
 ```
 
@@ -145,7 +142,7 @@ Returns:
 }
 ```
 
----
+ 
 
 ### What Are Collections Used For?
 
@@ -157,7 +154,7 @@ Typical use cases include:
 * documentation pages
 * filtered or paginated content views
 
----
+ 
 
 ## Everything Else (Raw Files)
 
@@ -165,7 +162,7 @@ All other file types are treated as **raw assets** and streamed directly to the 
 
 These files are **not fully cached**. Only limited metadata is stored, and the file contents are read from disk when requested.
 
----
+ 
 
 ### Example: Image Collection
 
