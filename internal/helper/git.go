@@ -4,14 +4,13 @@ import (
 	"path/filepath"
 
 	"github.com/cheetahbyte/centra/internal/config"
-	"github.com/cheetahbyte/centra/internal/logger"
 	"github.com/cheetahbyte/drift/git"
 	"github.com/cheetahbyte/drift/keys"
 )
 
 func SetupGit() *git.Client {
 	conf := config.Get()
-	log := logger.AcquireLogger()
+	log := AcquireLogger()
 
 	pubKeyPath, err := keys.Setup(
 		conf.KeysDir,

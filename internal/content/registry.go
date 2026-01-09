@@ -1,7 +1,9 @@
-package handler
+package content
 
 import (
 	"strings"
+
+	"github.com/cheetahbyte/centra/internal/config"
 )
 
 type FileHandler func(key string, path string, data []byte) error
@@ -12,23 +14,14 @@ var handlers = map[string]FileHandler{
 	".md":   handleMD,
 }
 
-var BinaryAllowList = map[string]bool{
-	// images
-	".png": true, ".jpg": true, ".jpeg": true, ".webp": true, ".gif": true, ".svg": true, ".ico": true, ".avif": true,
-	// docs
-	".pdf": true,
-	".mp4": true, ".webm": true, ".mp3": true, ".wav": true, ".ogg": true,
-	".woff": true, ".woff2": true, ".ttf": true, ".otf": true,
-	".zip": true,
-}
-
 func HandleFor(ext string) FileHandler {
+	conf := config.Get()
 	ext = strings.ToLower(ext)
 
 	if h, ok := handlers[ext]; ok {
 		return h
 	}
-	if BinaryAllowList[ext] {
+	if conf.AnyBinaries || config.BinaryAllowList[ext] {
 		return handleBinary
 	}
 	return handleIgnore // unknown/unwanted types

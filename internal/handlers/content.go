@@ -1,7 +1,6 @@
-package api
+package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -9,30 +8,12 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func writeJSON(w http.ResponseWriter, status int, v any) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
-}
-
-func writeBinaryJSON(w http.ResponseWriter, status int, v []byte) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	w.Write(v)
-}
-
-func handleHealth(w http.ResponseWriter, r *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{
-		"status": "ok",
-	})
-}
-
 type CollectionItem struct {
 	Slug string         `json:"slug"`
 	Meta map[string]any `json:"meta"`
 }
 
-func handleContent(w http.ResponseWriter, r *http.Request) {
+func HandleContent(w http.ResponseWriter, r *http.Request) {
 	path := chi.URLParam(r, "*")
 	path = strings.Trim(path, "/")
 

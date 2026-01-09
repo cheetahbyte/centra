@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 
 	"github.com/cheetahbyte/centra/internal/api"
+	"github.com/cheetahbyte/centra/internal/cache"
 	"github.com/cheetahbyte/centra/internal/config"
 	"github.com/cheetahbyte/centra/internal/content"
 	"github.com/cheetahbyte/centra/internal/helper"
-	"github.com/cheetahbyte/centra/internal/logger"
 	"github.com/cheetahbyte/drift/keys"
 
 	"github.com/go-chi/chi/v5"
@@ -25,7 +25,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log := logger.AcquireLogger()
+	log := helper.AcquireLogger()
 
 	if conf.GitRepo != "" {
 		if conf.PublicKey != "" {
@@ -45,9 +45,13 @@ func main() {
 
 	}
 
-	if err := content.LoadAll(conf.ContentRoot); err != nil {
-		log.Fatal().Err(err).Msg("caching did not work.")
-	}
+	go func() {
+		if err := content.LoadAll(conf.ContentRoot); err != nil {
+			log.Fatal().Err(err).Msg("caching did not work.")
+		}
+		cache.SetReady(true)
+		log.Info().Msg("content loaded. service is now ready.")
+	}()
 
 	log.Info().Str("port", conf.Port).Msg("centra api is running.")
 

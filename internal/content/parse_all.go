@@ -1,4 +1,4 @@
-package ingest
+package content
 
 import (
 	"mime"
@@ -10,7 +10,7 @@ import (
 	"github.com/cheetahbyte/centra/internal/cache"
 )
 
-func AddBinaryFromFile(slug string, path string) error {
+func addBinaryFromFile(slug string, path string) error {
 	ext := strings.ToLower(filepath.Ext(path))
 
 	ct := mime.TypeByExtension(ext)
@@ -34,4 +34,8 @@ func AddBinaryFromFile(slug string, path string) error {
 	return cache.AddBinaryRef(slug, ct, path, map[string]any{
 		"ext": ext,
 	})
+}
+
+func handleBinary(key, path string, data []byte) error {
+	return addBinaryFromFile(key, path)
 }
