@@ -31,7 +31,7 @@ func addBinaryFromFile(slug string, path string) error {
 		ct = strings.TrimSpace(ct[:i])
 	}
 
-	return cache.AddBinaryRef(slug, ct, path, map[string]any{
+	return cache.AddBinaryRef(slug+filepath.Ext(path), ct, path, map[string]any{
 		"ext": ext,
 	})
 }
