@@ -10,6 +10,7 @@ import (
 type Config struct {
 	// Core
 	Port        string `env:"PORT" envDefault:"3000"`
+	PublicURL   string `env:"CENTRA_PUBLIC_URL"`
 	ContentRoot string `env:"CONTENT_ROOT" envDefault:"/content"`
 	APIKey      string `env:"CENTRA_API_KEY"`
 
