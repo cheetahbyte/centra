@@ -7,6 +7,7 @@ All configuration values are provided via environment variables.
 | Core | `PORT` | string | `3000` | Port the HTTP server listens on |
 | Core | `CONTENT_ROOT` | string | `/content` | Root directory for all content files |
 | Core | `CENTRA_API_KEY` | string | – | Optional API key for protected/internal endpoints |
+| Core | `CENTRA_PUBLIC_URL | string | - | This defines the url which centra is running at. This is important for the `$rel` variable| 
 | Git & Keys | `GITHUB_REPO_URL` | string | – | Git repository URL used for content sync |
 | Git & Keys | `KEYS_DIR` | string | `/keys` | Directory where SSH keys are stored |
 | Git & Keys | `SSH_PRIVATE_KEY` | string | – | Private SSH key for Git access |
