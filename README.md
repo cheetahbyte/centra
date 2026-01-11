@@ -37,3 +37,6 @@ You can read all about the configuration [here](./docs/Configuration.md)
 
 # Content Model
 If you are interested in how Centra interacts with your content, you can read about it [here](./docs/ContentModel.md).
+
+# Variables
+Variables implement some nice quality of life features for centra. Read about it [here](./docs/Variables.md)
