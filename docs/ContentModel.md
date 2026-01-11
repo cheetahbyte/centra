@@ -3,7 +3,6 @@
 This document explains how **Centra** processes, categorizes, and serves your content.
 
  
-
 ## Caching
 
 To achieve high performance, Centra selectively caches content depending on file type.

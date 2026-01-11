@@ -51,10 +51,13 @@ func addMarkdown(slug string, raw []byte) error {
 
 	body := strings.TrimLeft(string(bodyBytes), "\n")
 
+	processedBody := ProcessVariables(body)
+	processedMetadata := ProcessMap(metadata)
+
 	doc := map[string]any{
-		"body": body,
+		"body": processedBody,
 	}
-	for k, v := range metadata {
+	for k, v := range processedMetadata {
 		doc[k] = v
 	}
 
@@ -63,7 +66,7 @@ func addMarkdown(slug string, raw []byte) error {
 		return err
 	}
 
-	metadata["kind"] = "markdown"
-	cache.Insert(slug, metadata, jsonData, "application/json")
+	processedMetadata["kind"] = "markdown"
+	cache.Insert(slug, processedMetadata, jsonData, "application/json")
 	return nil
 }

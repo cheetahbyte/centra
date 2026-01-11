@@ -42,6 +42,10 @@ func addYaml(slug string, raw []byte) error {
 		return fmt.Errorf("invalid yaml format")
 	}
 
+	// magic variables
+	metadata = ProcessMap(metadata)
+	fullData = ProcessMap(fullData)
+
 	jsonData, err := json.Marshal(fullData)
 	if err != nil {
 		return err
