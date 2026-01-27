@@ -141,7 +141,55 @@ Returns:
 }
 ```
 
+### Filtering Collections based on Metadata
+Since metadata gets exposed on collection level, you can use http query params to filter the collection results.
+
+#### Example
+
+**first.md**
+
+```yaml
  
+author: leo
+title: This is the first blog post
+state: released
+ 
+# This is my stuff.
+```
+
+**second.md**
+
+```yaml
+ 
+author: maik
+title: My deep-dive into monitors
+state: not-released
+ 
+# This is my stuff.
+```
+
+If you go to `/api/blogs?author=maik`, you shall receive:
+```json
+{
+  "collection": "blogs",
+  "items": [
+    {
+      "slug": "blogs/second",
+      "meta": {
+        "author": "maik",
+        "contentType": "application/json",
+        "kind": "markdown",
+        "size": 108,
+        "state": "not-released",
+        "title": "My deep-dive into monitors"
+      }
+    }
+  ]
+}
+```
+
+> [!NOTE]
+> If no matching entries are found, the items array will just be empty.
 
 ### What Are Collections Used For?
 

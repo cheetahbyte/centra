@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/cheetahbyte/centra/internal/cache"
+	"github.com/cheetahbyte/centra/internal/helper"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -31,12 +32,20 @@ func HandleContent(w http.ResponseWriter, r *http.Request) {
 	if !node.IsLeaf() {
 		items := node.GetChildren()
 		collectionItems := make([]CollectionItem, 0, len(items))
+		q := helper.ParseQueryParams(r)
 		for p, child := range items {
+			meta := child.GetMetadata()
+			// this is probably not ideal but it works for now.
+			if !helper.MatchesQuery(meta, q) {
+				continue
+			}
+
 			collectionItems = append(collectionItems, CollectionItem{
 				Slug: path + "/" + p,
 				Meta: child.GetMetadata(),
 			})
 		}
+
 		writeJSON(w, http.StatusOK, map[string]any{
 			"collection": path,
 			"items":      collectionItems,
