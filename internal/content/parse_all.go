@@ -8,9 +8,11 @@ import (
 	"strings"
 
 	"github.com/cheetahbyte/centra/internal/cache"
+	"github.com/cheetahbyte/centra/internal/helper"
 )
 
 func addBinaryFromFile(slug string, path string) error {
+	logger := helper.AcquireLogger()
 	ext := strings.ToLower(filepath.Ext(path))
 
 	ct := mime.TypeByExtension(ext)
@@ -20,7 +22,11 @@ func addBinaryFromFile(slug string, path string) error {
 		if err != nil {
 			return err
 		}
-		defer f.Close()
+		defer func() {
+			if err := f.Close(); err != nil {
+				logger.Error().Err(err).Msg("could close the file correctly")
+			}
+		}()
 
 		buf := make([]byte, 512)
 		n, _ := f.Read(buf)

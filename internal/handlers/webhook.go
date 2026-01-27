@@ -27,7 +27,12 @@ func HandleWebHook(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	defer r.Body.Close()
+
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			log.Error().Err(err).Msg("could close the file correctly")
+		}
+	}()
 
 	webhookSecret := conf.WebhookSecret
 	signatureHeader := r.Header.Get("X-Hub-Signature-256")
