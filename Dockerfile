@@ -6,7 +6,8 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       ca-certificates \
-      tzdata && \
+      tzdata \
+      libwebp-dev && \
     rm -rf /var/lib/apt/lists/*
 
 RUN useradd \
@@ -16,7 +17,7 @@ RUN useradd \
     --shell /usr/sbin/nologin \
     appuser
 
-ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
+ENV CGO_ENABLED=1 GOOS=linux GOARCH=amd64
 
 COPY go.mod go.sum ./
 RUN go mod download
@@ -36,7 +37,8 @@ RUN apt-get update && \
       git \
       openssh-client \
       ca-certificates \
-      tzdata && \
+      tzdata \
+      libwebp7 && \
     rm -rf /var/lib/apt/lists/*
 
 
