@@ -14,9 +14,12 @@ require (
 )
 
 require (
+	github.com/chai2010/webp v1.4.0 // indirect
+	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/zeebo/xxh3 v1.0.2 // indirect
+	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 )

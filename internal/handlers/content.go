@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/cheetahbyte/centra/internal/cache"
+	"github.com/cheetahbyte/centra/internal/config"
 	"github.com/cheetahbyte/centra/internal/helper"
 	"github.com/go-chi/chi/v5"
 )
@@ -61,8 +62,14 @@ func HandleContent(w http.ResponseWriter, r *http.Request) {
 
 	// check if its a binary file
 	if fp := node.GetFilePath(); fp != "" {
+		if config.Get().ImageScaling && isImageType(ct) {
+			if params, ok := parseTransformParams(r); ok {
+				TransformImage(w, r, fp, ct, params)
+				return
+			}
+		}
+
 		w.Header().Set("Content-Type", ct)
-		// maybe caching
 
 		if r.Method == http.MethodHead {
 			w.WriteHeader(http.StatusOK)
