@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/cheetahbyte/centra/internal/cache"
 	"github.com/cheetahbyte/centra/internal/config"
@@ -78,6 +79,9 @@ func HandleWebHook(w http.ResponseWriter, r *http.Request) {
 		log.Info().Int("files_changed", changedFiles).Msg("git pull successful")
 
 		cache.InvalidateAll()
+		if conf.ImageScaling {
+			_ = os.RemoveAll(conf.ImageCacheDir)
+		}
 		if err := content.LoadAll(root); err != nil {
 			log.Error().Err(err).Msg("failed to reload content after git update")
 			return

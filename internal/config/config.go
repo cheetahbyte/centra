@@ -1,6 +1,7 @@
 package config
 
 import (
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -38,6 +39,11 @@ type Config struct {
 	CacheBinaries   bool     `env:"CACHE_BINARIES"`
 	AllowedBinaries []string `env:"ALLOWED_BINARIES" envDefault:"*"`
 	AnyBinaries     bool     `env:"-"`
+
+	// Image scaling
+	ImageScaling  bool   `env:"IMAGE_SCALING" envDefault:"false"`
+	ImageCacheDir string `env:"IMAGE_CACHE_DIR"`
+	ImageMaxDim   int    `env:"IMAGE_MAX_DIM" envDefault:"4096"`
 }
 
 func (c *Config) Normalize() {
@@ -55,6 +61,10 @@ func (c *Config) Normalize() {
 			ext = "." + ext
 		}
 		c.AllowedBinaries[i] = ext
+	}
+
+	if c.ImageCacheDir == "" {
+		c.ImageCacheDir = filepath.Join(c.ContentRoot, ".image-cache")
 	}
 }
 
