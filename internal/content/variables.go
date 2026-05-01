@@ -36,7 +36,7 @@ func relVarHandler(args ...string) string {
 	return u.String()
 }
 
-func HandleVariable(name string, args ...string) VariableHandler {
+func HandleVariable(name string) VariableHandler {
 	name = strings.ToLower(name)
 
 	if vh, ok := variableHandlers[name]; ok {
@@ -51,6 +51,7 @@ func handleVariableIgnore(args ...string) string { return "" }
 var varRegex = regexp.MustCompile(`\$([a-zA-Z0-9]+)\((.*?)\)`)
 
 func ProcessVariables(input string) string {
+	log := helper.AcquireLogger()
 	return varRegex.ReplaceAllStringFunc(input, func(match string) string {
 		submatches := varRegex.FindStringSubmatch(match)
 		if len(submatches) < 3 {
@@ -69,6 +70,11 @@ func ProcessVariables(input string) string {
 		}
 
 		handler := HandleVariable(name)
+
+		if len(args) == 0 {
+			log.Debug().Str("name", name).Msg("discarding variable because of missing args")
+			return fmt.Sprintf("$%s", name)
+		}
 
 		return handler(args...)
 	})
