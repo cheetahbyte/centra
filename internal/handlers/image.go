@@ -14,7 +14,10 @@ import (
 	"github.com/cheetahbyte/centra/internal/config"
 	"github.com/cheetahbyte/centra/internal/helper"
 	"github.com/disintegration/imaging"
+	"golang.org/x/sync/singleflight"
 )
+
+var transformGroup singleflight.Group
 
 type TransformParams struct {
 	Width   int
@@ -62,9 +65,9 @@ func TransformImage(w http.ResponseWriter, r *http.Request, originalPath string,
 
 	outFormat, outCT := resolveFormat(params.Format, originalCT)
 
-	cacheKey := fmt.Sprintf("%x", sha256.Sum256([]byte(
-		fmt.Sprintf("%s|%d|%d|%d|%s", originalPath, params.Width, params.Height, params.Quality, outFormat),
-	)))
+	cacheKey := fmt.Sprintf("%x", sha256.Sum256(
+		fmt.Appendf(nil, "%s|%d|%d|%d|%s", originalPath, params.Width, params.Height, params.Quality, outFormat),
+	))
 	cachePath := filepath.Join(conf.ImageCacheDir, cacheKey+"."+outFormat)
 
 	if _, err := os.Stat(cachePath); err == nil {
@@ -73,31 +76,32 @@ func TransformImage(w http.ResponseWriter, r *http.Request, originalPath string,
 		return
 	}
 
-	if err := os.MkdirAll(conf.ImageCacheDir, 0755); err != nil {
-		log.Error().Err(err).Msg("failed to create image cache dir")
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
+	_, err, _ := transformGroup.Do(cacheKey, func() (any, error) {
+		if err := os.MkdirAll(conf.ImageCacheDir, 0755); err != nil {
+			return nil, err
+		}
 
-	src, err := decodeImage(originalPath, originalCT)
+		src, err := decodeImage(originalPath, originalCT)
+		if err != nil {
+			return nil, err
+		}
+
+		bounds := src.Bounds()
+		w := params.Width
+		h := params.Height
+		if w == 0 {
+			w = bounds.Dx()
+		}
+		if h == 0 {
+			h = bounds.Dy()
+		}
+		dst := imaging.Fit(src, w, h, imaging.Linear)
+
+		return nil, encodeImage(dst, cachePath, outFormat, params.Quality)
+	})
+
 	if err != nil {
-		log.Error().Err(err).Str("path", originalPath).Msg("failed to decode image")
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
-		return
-	}
-
-	// imaging.Fit resizes to fit within the bounds, never upscales
-	bounds := src.Bounds()
-	if params.Width == 0 {
-		params.Width = bounds.Dx()
-	}
-	if params.Height == 0 {
-		params.Height = bounds.Dy()
-	}
-	dst := imaging.Fit(src, params.Width, params.Height, imaging.Lanczos)
-
-	if err := encodeImage(dst, cachePath, outFormat, params.Quality); err != nil {
-		log.Error().Err(err).Str("path", cachePath).Msg("failed to encode transformed image")
+		log.Error().Err(err).Str("path", originalPath).Msg("failed to transform image")
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

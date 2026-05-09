@@ -30,6 +30,7 @@ func HandleContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// collection handeling
 	if !node.IsLeaf() {
 		items := node.GetChildren()
 		collectionItems := make([]CollectionItem, 0, len(items))

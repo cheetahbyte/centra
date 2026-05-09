@@ -24,7 +24,7 @@ func addBinaryFromFile(slug string, path string) error {
 		}
 		defer func() {
 			if err := f.Close(); err != nil {
-				logger.Error().Err(err).Msg("could close the file correctly")
+				logger.Error().Err(err).Msg("could not close the file correctly")
 			}
 		}()
 
